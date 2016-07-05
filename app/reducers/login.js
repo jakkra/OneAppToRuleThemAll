@@ -15,6 +15,7 @@ export const initialState = {
   error: false,
   accessToken: null,
   payload: null,
+  email: 'ijakkra@gmail.com',
 };
 
 

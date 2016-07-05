@@ -1,21 +1,32 @@
 import React from 'react';
-import {
+
+import ReactNative, {
   StyleSheet,
   ListView,
   View,
   Text,
   RefreshControl,
-  ScrollView,
-  TouchableHighlight,
+  TouchableOpacity,
+  TextInput,
+  Dimensions,
+  BackAndroid,
+  TimePickerAndroid,
+  DatePickerAndroid,
+  ToastAndroid,
 } from 'react-native';
 
 import { connect } from 'react-redux';
-import { fetchReminders } from '../actions/reminders';
+import { fetchReminders, createReminder } from '../actions/reminders';
 
 import EventList from './EventList';
 import Accordion from 'react-native-accordion';
+import { createAnimatableComponent } from 'react-native-animatable';
+const ScrollView = createAnimatableComponent(ReactNative.ScrollView);
 
-import Icon from 'react-native-vector-icons/Entypo';
+import Ic from 'react-native-vector-icons/Entypo';
+
+const Icon = createAnimatableComponent(Ic);
+
 
 const styles = StyleSheet.create({
   container: {
@@ -32,9 +43,12 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   headerText: {
-    color: '#0099CC',
-    fontSize: 26,
+    fontSize: 18,
+    fontWeight: 'bold',
     marginHorizontal: 20,
+    alignSelf: 'stretch',
+    width: Dimensions.get('window').width,
+    backgroundColor: 'transparent',
   },
   scrollView: {
     flex: 1,
@@ -49,26 +63,26 @@ const styles = StyleSheet.create({
   },
   dayRowText: {
     color: '#0099CC',
-    fontSize: 16,
+    fontSize: 20,
     fontWeight: 'bold',
     alignSelf: 'center',
     justifyContent: 'flex-start',
-    flex: 0.95,
+    flex: 0.9,
     marginLeft: 20,
   },
   dayRowIcon: {
-    flex: 0.05,
+    flex: 0.1,
     alignSelf: 'center',
     alignItems: 'flex-end',
     justifyContent: 'center',
     height: 40,
-    marginRight: 20,
+    marginRight: 30,
   },
   dayRowIconText: {
     color: '#0099CC',
-    fontSize: 14,
     fontWeight: 'bold',
     alignSelf: 'center',
+    width: 20,
   },
   dayRowOpen: {
 
@@ -84,12 +98,20 @@ const styles = StyleSheet.create({
     title: 'About',
   },
 };*/
+const days = [
+  { key: 'todayIcon', day: 'TODAY' },
+  { key: 'tomorrowIcon', day: 'TOMORROW' },
+  { key: 'upcomingIcon', day: 'UPCOMING' },
+  { key: 'somedayIcon', day: 'SOMEDAY' },
+];
 
 class Home extends React.Component {
   static propTypes = {
     handleNavigate: React.PropTypes.func.isRequired,
     fetchReminders: React.PropTypes.func.isRequired,
     remindersReducer: React.PropTypes.object.isRequired,
+    loginReducer: React.PropTypes.object.isRequired,
+    createReminder: React.PropTypes.func.isRequired,
   };
 
   constructor(props) {
@@ -98,18 +120,38 @@ class Home extends React.Component {
     this.ds = new ListView.DataSource({ rowHasChanged: (r1, r2) => r1 !== r2 });
     this.state = {
       dataSource: this.ds.cloneWithRows([]),
+      createReminder: false,
+      reminderDay: null,
+      reminderText: '',
+      reminderHour: 0,
+      reminderMinute: 0,
     };
     this.onRefresh = this.onRefresh.bind(this);
+    this.onPressAdd = this.onPressAdd.bind(this);
+    this.createNewReminder = this.createNewReminder.bind(this);
+    this.handleBackAction = this.handleBackAction.bind(this);
   }
   componentDidMount() {
     this.onRefresh();
+    BackAndroid.addEventListener('hardwareBackPress', this.handleBackAction);
   }
 
   componentWillReceiveProps(nextProps) {
     if (nextProps.remindersReducer.isFetching === false &&
       this.props.remindersReducer.isFetching === true) {
       this.onEventFetchSuccess(nextProps.remindersReducer.events);
+    } else if (nextProps.remindersReducer.isCreatingEvent === false &&
+      this.props.remindersReducer.isCreatingEvent === true) {
+      ToastAndroid.show('Reminder created', ToastAndroid.SHORT);
+      this.onRefresh();
+    } else if (nextProps.remindersReducer.error === true &&
+      this.props.remindersReducer.error === false) {
+      ToastAndroid.show('An error occured, try again', ToastAndroid.LONG);
     }
+  }
+
+  componentWillUnmount() {
+    BackAndroid.removeEventListener('hardwareBackPress', this.handleBackAction);
   }
 
   onEventFetchSuccess(events) {
@@ -120,17 +162,89 @@ class Home extends React.Component {
   }
 
   onRefresh() {
-    this.props.fetchReminders();
+    this.props.fetchReminders(this.props.loginReducer.accessToken);
   }
 
-  onPressAdd() {
-    console.log('onPressAdd');
+  onPressAdd(key, day) {
+    this.refs[key].jello();
+    this.refs.scrollReminders.fadeOut({ duration: 300 });
+    let date = null;
+    if (day === 'TODAY') {
+      date = new Date();
+    } else if (day === 'TOMORROW') {
+      date = new Date(new Date().getTime() + (24 * 60 * 60 * 1000));
+    }
+    this.setState({ createReminder: true, reminderDay: date });
+    this.refs.headerInput.focus();
   }
+
+  handleEndCreateReminder() {
+    this.refs.headerInput.blur();
+    this.setState({
+      createReminder: false,
+      reminderText: '',
+    });
+    this.refs.scrollReminders.fadeIn({ duration: 300 });
+  }
+
+  handleBackAction() {
+    if (this.state.createReminder === true) {
+      this.handleEndCreateReminder();
+      return true;
+    }
+    return false;
+  }
+
+  createNewReminder() {
+    const now = new Date();
+    const options = {
+      hour: now.getHours(),
+      minute: now.getMinutes(),
+      is24Hour: true,
+    };
+    let selectedYear = this.state.reminderDay;
+
+    if (selectedYear === null) {
+      DatePickerAndroid.open()
+      .then(({ action, year, month, day }) => {
+        if (action === DatePickerAndroid.dateSetAction) {
+          const d = new Date();
+          d.setFullYear(year, month, day);
+          selectedYear = d;
+          this.showTime(selectedYear, options);
+        } else if (action === DatePickerAndroid.dismissedAction) {
+          return;
+        }
+      });
+    } else {
+      this.showTime(selectedYear, options);
+    }
+  }
+
+  showTime(selectedYear, options) {
+    TimePickerAndroid.open(options)
+    .then(({ action, minute, hour }) => {
+      if (action === TimePickerAndroid.timeSetAction) {
+        selectedYear.setHours(hour);
+        selectedYear.setMinutes(minute);
+        this.setState({ reminderDay: selectedYear });
+        const event = {
+          title: this.state.reminderText,
+          time: selectedYear,
+          email: this.props.loginReducer.email,
+        };
+        this.props.createReminder(event, this.props.loginReducer.accessToken);
+        this.handleEndCreateReminder();
+      } else if (action === TimePickerAndroid.dismissedAction) {
+        this.handleEndCreateReminder();
+      }
+    })
+    .catch(() => this.handleEndCreateReminder());
+  }
+
 
   renderDayRows() {
-    const days = ['TODAY', 'TOMORROW', 'UPCOMING', 'SOMEDAY'];
-
-    const rows = days.map((day) => {
+    const rows = days.map(({ key, day }) => {
       const filteredEvents = this.events.filter((event) => {
         const today = new Date();
         const tomorrow = new Date(new Date().getTime() + 24 * 60 * 60 * 1000);
@@ -150,11 +264,9 @@ class Home extends React.Component {
       const header = (
         <View style={styles.dayRow}>
           <Text style={styles.dayRowText}>{day}</Text>
-          <TouchableHighlight style={styles.dayRowIcon}>
-            <Text style={styles.dayRowIconText}>
-              <Icon name="circle-with-plus" color="#4F8EF7" size={17} />
-            </Text>
-          </TouchableHighlight>
+          <TouchableOpacity onPress={() => this.onPressAdd(key, day)} style={styles.dayRowIcon}>
+            <Icon ref={key} name="circle-with-plus" color="#0099CC" size={25} />
+          </TouchableOpacity>
         </View>
       );
 
@@ -164,7 +276,7 @@ class Home extends React.Component {
       );
       return (
         <Accordion
-          animationDuration={200}
+          animationDuration={10}
           underlayColor="white"
           key={day}
           header={header}
@@ -182,15 +294,20 @@ class Home extends React.Component {
     return (
       <View style={styles.container}>
         <View style={styles.header}>
-          <Text style={styles.headerText}>ALL</Text>
+          <TextInput
+            style={styles.headerText}
+            ref="headerInput"
+            placeholder={this.state.createReminder ? 'I need to...' : 'REMINDERS'}
+            placeholderTextColor="#0099CC"
+            editable={this.state.createReminder}
+            value={this.state.reminderText}
+            onChangeText={text => this.setState({ ...{ reminderText: text } })}
+            onSubmitEditing={this.createNewReminder}
+          />
         </View>
         <ScrollView
-          // contentContainerStyle={styles.imageGrid}
-          // dataSource={this.state.dataSource}
-          // showsVerticalScrollIndicator={false}
-          // enableEmptySections={true}
+          ref="scrollReminders"
           style={styles.scrollView}
-          // renderRow={this.renderRow}
           refreshControl={
             <RefreshControl
               refreshing={this.props.remindersReducer.isFetching}
@@ -219,6 +336,7 @@ function mapStateToProps(state) {
 function mapDispatchToProps(dispatch) {
   return {
     fetchReminders: (...args) => { dispatch(fetchReminders(...args)); },
+    createReminder: (...args) => { dispatch(createReminder(...args)); },
   };
 }
 

@@ -6,6 +6,7 @@ import ReactNative, {
   Image,
   Dimensions,
   ToastAndroid,
+  BackAndroid,
 } from 'react-native';
 
 import { connect } from 'react-redux';
@@ -15,6 +16,7 @@ import SpinningIcon from './SpinningIcon';
 import { createAnimatableComponent, View, Text } from 'react-native-animatable';
 
 const TouchableHighlight = createAnimatableComponent(ReactNative.TouchableHighlight);
+const backgroundImg = require('../img/rsz_stars.png');
 
 
 const styles = StyleSheet.create({
@@ -98,6 +100,7 @@ class Login extends React.Component {
     loginReducer: React.PropTypes.object.isRequired,
     authenticate: React.PropTypes.func.isRequired,
     handleNavigate: React.PropTypes.func.isRequired,
+    goBack: React.PropTypes.func.isRequired,
     createUser: React.PropTypes.func.isRequired,
   };
 
@@ -106,13 +109,18 @@ class Login extends React.Component {
     this.buttonPress = this.buttonPress.bind(this);
     this.pushAfterSuccesLogin = this.pushAfterSuccesLogin.bind(this);
     this.createAccount = this.createAccount.bind(this);
+    this.handleBackAction = this.handleBackAction.bind(this);
 
     this.state = {
-      email: '',
-      password: '',
+      email: 'ijakkra@gmail.com',
+      password: 'password',
       name: '',
       showCreate: false,
     };
+  }
+
+  componentDidMount() {
+    BackAndroid.addEventListener('hardwareBackPress', this.handleBackAction);
   }
 
   componentWillReceiveProps(nextProps) {
@@ -121,13 +129,24 @@ class Login extends React.Component {
       this.pushAfterSuccesLogin();
     } else if (nextProps.loginReducer.error === true &&
       this.props.loginReducer.error === false) {
-        console.log('login error called');
       ToastAndroid.show('Login Failure', ToastAndroid.SHORT);
     } else if (nextProps.loginReducer.isCreatingUser === false
       && this.props.loginReducer.isCreatingUser === true) {
       ToastAndroid.show('User successfully created', ToastAndroid.SHORT);
       this.swapUI();
     }
+  }
+
+  componentWillUnmount() {
+    BackAndroid.removeEventListener('hardwareBackPress', this.handleBackAction);
+  }
+
+  handleBackAction() {
+    if (this.state.showCreate === true) {
+      this.swapUI();
+      return true;
+    }
+    return false;
   }
 
   buttonPress() {
@@ -175,7 +194,7 @@ class Login extends React.Component {
       }, 1000);
     } else {
       this.refs.button.slideOutLeft(500);
-      this.refs.signUpText.slideOutLeft(500);
+      this.refs.signUpText.slideInLeft(500);
       this.timer = setInterval(() => {
         this.setState({ showCreate: false });
         this.refs.button.slideInRight(500);
@@ -208,7 +227,7 @@ class Login extends React.Component {
 
     return (
       <View style={styles.container}>
-        <Image style={styles.bg} source={{ uri: 'https://farm1.staticflickr.com/772/20421858680_0fa53752c4_k_d.jpg' }} />
+        <Image style={styles.bg} source={backgroundImg} />
         <View style={styles.header}>
           <SpinningIcon
             icon={"rocket"}
@@ -259,7 +278,7 @@ class Login extends React.Component {
             <Text
               onPress={this.createAccount}
               style={[styles.whiteFont, { fontWeight: 'bold' }]}
-            >{this.state.showCreate ? '' : 'Sign Up Here!'}</Text></Text>
+            >{this.state.showCreate ? '' : '  Sign Up Here!'}</Text></Text>
         </View>
       </View>
     );

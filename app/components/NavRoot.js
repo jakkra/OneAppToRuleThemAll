@@ -60,7 +60,7 @@ class NavRoot extends Component {
     if (scene.key === prefix + 'home') {
       return <Home handleNavigate={this.handleNavigate} />;
     } else if (scene.key === prefix + 'login') {
-      return <Login handleNavigate={this.handleNavigate} />;
+      return <Login goBack={this.handleBackAction} handleNavigate={this.handleNavigate} />;
     }
     /* if (scene.key === prefix + 'about') {
       return <About goBack={this.handleBackAction} />;
