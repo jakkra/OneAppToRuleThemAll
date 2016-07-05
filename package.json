@@ -1,0 +1,31 @@
+{
+  "name": "Reminders",
+  "version": "0.0.1",
+  "private": true,
+  "scripts": {
+    "start": "node node_modules/react-native/local-cli/cli.js start"
+  },
+  "dependencies": {
+    "es6-promise": "^3.2.1",
+    "eslint-config-airbnb": "^9.0.1",
+    "isomorphic-fetch": "^2.2.1",
+    "jsonwebtoken": "^7.0.1",
+    "react": "15.1.0",
+    "react-native": "0.28.0",
+    "react-native-accordion": "^1.0.0",
+    "react-native-animatable": "^0.6.1",
+    "react-native-material-kit": "^0.3.2",
+    "react-native-vector-icons": "^2.0.3",
+    "react-redux": "^4.4.5",
+    "redux": "^3.5.2",
+    "redux-thunk": "^2.1.0"
+  },
+  "devDependencies": {
+    "babel-eslint": "^6.1.0",
+    "eslint": "^2.13.1",
+    "eslint-config-airbnb": "^9.0.1",
+    "eslint-plugin-import": "^1.10.0",
+    "eslint-plugin-jsx-a11y": "^1.5.3",
+    "eslint-plugin-react": "^5.2.2"
+  }
+}
