@@ -63,7 +63,7 @@ const styles = StyleSheet.create({
   },
   dayRowText: {
     color: '#0099CC',
-    fontSize: 20,
+    fontSize: 22,
     fontWeight: 'bold',
     alignSelf: 'center',
     justifyContent: 'flex-start',
@@ -231,7 +231,7 @@ class Home extends React.Component {
         const event = {
           title: this.state.reminderText,
           time: selectedYear,
-          email: this.props.loginReducer.email,
+          reminderActive: true,
         };
         this.props.createReminder(event, this.props.loginReducer.accessToken);
         this.handleEndCreateReminder();
@@ -248,7 +248,9 @@ class Home extends React.Component {
       const filteredEvents = this.events.filter((event) => {
         const today = new Date();
         const tomorrow = new Date(new Date().getTime() + 24 * 60 * 60 * 1000);
-
+        if (event.deleted === true) {
+          return false;
+        }
         if (day === 'TODAY') {
           return today.toDateString() === new Date(event.time).toDateString();
         }

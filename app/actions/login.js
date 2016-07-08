@@ -8,6 +8,7 @@ export const CREATE_USER_FAILURE = 'CREATE_USER_FAILURE';
 
 export const ACCESS_TOKEN_LOGIN = 'ACCESS_TOKEN_LOGIN';
 
+import config from '../util/config';
 export function loginRequest() {
   return {
     type: LOGIN_REQUEST,
@@ -67,7 +68,7 @@ function checkStatus(response) {
 }
 
 function authenticateToServer(dispatch, email, password) {
-  fetch('https://radiant-wave-58367.herokuapp.com/api/user/authenticate/', {
+  fetch(config.serverURL + '/api/user/authenticate/', {
     method: 'post',
     headers: {
       Accept: 'application/json',
@@ -93,7 +94,7 @@ function authenticateToServer(dispatch, email, password) {
 }
 
 function createUserOnServer(dispatch, name, email, password) {
-  fetch('https://radiant-wave-58367.herokuapp.com/api/user/create/', {
+  fetch(config.serverURL + '/api/user/create/', {
     method: 'post',
     headers: {
       Accept: 'application/json',
