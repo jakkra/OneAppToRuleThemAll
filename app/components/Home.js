@@ -22,6 +22,10 @@ import EventList from './EventList';
 import Accordion from 'react-native-accordion';
 import { createAnimatableComponent } from 'react-native-animatable';
 const ScrollView = createAnimatableComponent(ReactNative.ScrollView);
+import PushNotification from 'react-native-push-notification';
+
+
+import config from '../util/config';
 
 import Ic from 'react-native-vector-icons/Entypo';
 
@@ -130,10 +134,13 @@ class Home extends React.Component {
     this.onPressAdd = this.onPressAdd.bind(this);
     this.createNewReminder = this.createNewReminder.bind(this);
     this.handleBackAction = this.handleBackAction.bind(this);
+    this.sendDeviceTokenToServer = this.sendDeviceTokenToServer.bind(this);
+    this.registerToPushNotifications = this.registerToPushNotifications.bind(this);
   }
   componentDidMount() {
     this.onRefresh();
     BackAndroid.addEventListener('hardwareBackPress', this.handleBackAction);
+    this.registerToPushNotifications();
   }
 
   componentWillReceiveProps(nextProps) {
@@ -176,6 +183,63 @@ class Home extends React.Component {
     }
     this.setState({ createReminder: true, reminderDay: date });
     this.refs.headerInput.focus();
+  }
+
+  sendDeviceTokenToServer(deviceToken) {
+    console.log(deviceToken);
+    fetch(config.serverURL + '/api/user/device', {
+      method: 'post',
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'application/json',
+        'x-access-token': this.props.loginReducer.accessToken,
+      },
+      body: JSON.stringify({
+        deviceToken,
+      }),
+    })
+    .then(response => response.json())
+    .then(json => {
+      console.log(json);
+      if (json.success === true) {
+        ToastAndroid.show('Successfully send deviceToken', ToastAndroid.SHORT);
+      } else {
+        ToastAndroid.show('Failed to send deviceToken', ToastAndroid.SHORT);
+      }
+    });
+  }
+
+  registerToPushNotifications() {
+    PushNotification.configure({
+      onRegister: (response) => this.sendDeviceTokenToServer(response.token),
+      // (required) Called when a remote or local notification is opened or received
+      onNotification: (notification) => this.handleNotification(notification),
+      // ANDROID ONLY: (optional) GCM Sender ID.
+      senderID: '497309261287',
+      // Should the initial notification be popped automatically
+      // default: true
+      popInitialNotification: true,
+    });
+  }
+
+  handleNotification(notification) {
+    console.log('---------', notification);
+    let reminder;
+    if (notification.reminder !== undefined) {
+      reminder = JSON.parse(notification.reminder);
+    }
+    console.log(reminder);
+    PushNotification.localNotification({
+      /* Android Only Properties */
+      title: 'Reminder',
+      autoCancel: true,
+      largeIcon: 'ic_launcher',
+      smallIcon: 'ic_notification',
+      // bigText: 'Don't forget', // (optional) default: "message" prop
+      subText: "Don't forget!",
+      color: 'blue', // (optional) default: system default
+      message: reminder.title,
+    });
   }
 
   handleEndCreateReminder() {

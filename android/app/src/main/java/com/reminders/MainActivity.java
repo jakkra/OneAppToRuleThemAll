@@ -1,13 +1,16 @@
 package com.reminders;
 
 import com.facebook.react.ReactActivity;
-import com.github.xinthink.rnmk.ReactMaterialKitPackage;
-import com.oblador.vectoricons.VectorIconsPackage;
+
 import com.facebook.react.ReactPackage;
 import com.facebook.react.shell.MainReactPackage;
 
 import java.util.Arrays;
 import java.util.List;
+
+import android.content.Intent; // <--- Import Intent
+import com.dieam.reactnativepushnotification.ReactNativePushNotificationPackage;  // <--- Import Package
+
 
 public class MainActivity extends ReactActivity {
 
@@ -29,16 +32,16 @@ public class MainActivity extends ReactActivity {
         return BuildConfig.DEBUG;
     }
 
-    /**
-     * A list of packages used by the app. If the app uses additional views
-     * or modules besides the default ones, add more packages here.
-     */
     @Override
-    protected List<ReactPackage> getPackages() {
-        return Arrays.<ReactPackage>asList(
-            new MainReactPackage(),
-            new ReactMaterialKitPackage(),
-            new VectorIconsPackage()
-        );
+    public void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+
+        MainApplication application = (MainApplication) this.getApplication();
+
+        ReactNativePushNotificationPackage pushPackage = application.getReactNativePushNotificationPackage();
+
+        if (pushPackage != null) {
+            pushPackage.newIntent(intent);
+        }
     }
 }
