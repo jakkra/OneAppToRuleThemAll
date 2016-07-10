@@ -6,7 +6,7 @@ import {
   TouchableOpacity,
 } from 'react-native';
 
-import Accordion from 'react-native-accordion';
+import Accordion from 'react-native-collapsible/Accordion';
 import { getMonthName } from '../util/DateUtils';
 import { createAnimatableComponent, View } from 'react-native-animatable';
 import ReminderActions from './ReminderActions';
@@ -62,6 +62,8 @@ class EventList extends React.Component {
   constructor(props) {
     super(props);
     this.updateReminder = this.updateReminder.bind(this);
+    this.renderHeader = this.renderHeader.bind(this);
+    this.renderContent = this.renderContent.bind(this);
   }
 
   getCompleatedIcon(event) {
@@ -106,71 +108,63 @@ class EventList extends React.Component {
     }
   }
 
-  render() {
-    const rows = this.props.events.map((event) => {
-      const icon = this.getCompleatedIcon(event);
-      const header = (
-        <View animation="slideInDown" style={styles.listElement}>
-          <TouchableOpacity
-            onPress={() => this.updateReminder(event.id, 'complete')}
-          >
-            <Icon
-              key={event.id}
-              ref={'checkIcon' + event.id}
-              name={icon.name}
-              color={icon.color}
-              size={21}
-            />
-          </TouchableOpacity>
-          <Text style={styles.eventTitleText}>{event.title}</Text>
-        </View>
-      );
-      const startTime = new Date(event.time);
-      let day;
-      if (startTime.toDateString() === new Date().toDateString()) {
-        day = 'TODAY';
-      } else {
-        day = getMonthName(startTime.getUTCMonth()) + ' ' + startTime.getDate();
-      }
+  renderHeader(event, index, isActive) {
+    const icon = this.getCompleatedIcon(event);
+    return (
+      <View animation="slideInDown" style={styles.listElement}>
+        <TouchableOpacity
+          onPress={() => this.updateReminder(event.id, 'complete')}
+        >
+          <Icon
+            key={event.id}
+            ref={'checkIcon' + event.id}
+            name={icon.name}
+            color={icon.color}
+            size={21}
+          />
+        </TouchableOpacity>
+        <Text style={styles.eventTitleText}>{event.title}</Text>
+      </View>
+    );
+  }
 
-      const content = (
-        <View style={styles.openContainer}>
-          <View style={styles.row}>
-            <Text
-              style={{ fontSize: 15, fontWeight: 'bold', color: 'lightgray' }}
-            >{day + ' | '}</Text>
-            <Text style={{ fontSize: 15, color: 'lightgray' }} >
-            {startTime.getHours() + ':' + startTime.getMinutes()}
-            </Text>
-          </View>
-          <View style={styles.row}>
-            <ReminderActions
-              event={event}
-              onComplete={(field) => this.updateReminder(event.id, field)}
-            />
-          </View>
-        </View>
-      );
-      return (
-        <Accordion
-          ref="accordion"
-          animationDuration={10}
-          underlayColor="white"
-          key={event.id}
-          header={header}
-          content={content}
-          easing="linear"
-        />
-      );
-    });
-    if (rows && rows.length > 0) {
-      return (
-        <View style={styles.list}>
-          {rows}
-        </View>
-      );
+  renderContent(event, index, isActive) {
+    const startTime = new Date(event.time);
+    let day;
+    if (startTime.toDateString() === new Date().toDateString()) {
+      day = 'TODAY';
+    } else {
+      day = getMonthName(startTime.getUTCMonth()) + ' ' + startTime.getDate();
     }
-    return null;
+
+    return (
+      <View style={styles.openContainer}>
+        <View style={styles.row}>
+          <Text
+            style={{ fontSize: 15, fontWeight: 'bold', color: 'lightgray' }}
+          >{day + ' | '}</Text>
+          <Text style={{ fontSize: 15, color: 'lightgray' }} >
+          {startTime.getHours() + ':' + startTime.getMinutes()}
+          </Text>
+        </View>
+        <View style={styles.row}>
+          <ReminderActions
+            event={event}
+            onComplete={(field) => this.updateReminder(event.id, field)}
+          />
+        </View>
+      </View>
+    );
+  }
+  render() {
+    return (
+      <Accordion
+        sections={this.props.events}
+        underlayColor="white"
+        renderHeader={this.renderHeader}
+        renderContent={this.renderContent}
+      />
+    );
   }
 }
 

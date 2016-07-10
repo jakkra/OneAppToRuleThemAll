@@ -19,7 +19,7 @@ import { connect } from 'react-redux';
 import { fetchReminders, createReminder } from '../actions/reminders';
 
 import EventList from './EventList';
-import Accordion from 'react-native-accordion';
+import Accordion from 'react-native-collapsible/Accordion';
 import { createAnimatableComponent } from 'react-native-animatable';
 const ScrollView = createAnimatableComponent(ReactNative.ScrollView);
 import PushNotification from 'react-native-push-notification';
@@ -130,6 +130,7 @@ class Home extends React.Component {
       reminderHour: 0,
       reminderMinute: 0,
     };
+    this.renderDayRows = this.renderDayRows.bind(this);
     this.onRefresh = this.onRefresh.bind(this);
     this.onPressAdd = this.onPressAdd.bind(this);
     this.createNewReminder = this.createNewReminder.bind(this);
@@ -173,7 +174,8 @@ class Home extends React.Component {
   }
 
   onPressAdd(key, day) {
-    this.refs[key].jello();
+    console.log(key, day, this.refs);
+    // this.refs[key].jello();
     this.refs.scrollReminders.fadeOut({ duration: 300 });
     let date = null;
     if (day === 'TODAY') {
@@ -212,12 +214,8 @@ class Home extends React.Component {
   registerToPushNotifications() {
     PushNotification.configure({
       onRegister: (response) => this.sendDeviceTokenToServer(response.token),
-      // (required) Called when a remote or local notification is opened or received
       onNotification: (notification) => this.handleNotification(notification),
-      // ANDROID ONLY: (optional) GCM Sender ID.
       senderID: '497309261287',
-      // Should the initial notification be popped automatically
-      // default: true
       popInitialNotification: true,
     });
   }
@@ -308,7 +306,18 @@ class Home extends React.Component {
 
 
   renderDayRows() {
-    const rows = days.map(({ key, day }) => {
+    function rh({ key, day }, index, isActive) {
+      console.log(key, day);
+      return (
+        <View style={styles.dayRow}>
+          <Text style={styles.dayRowText}>{day}</Text>
+          <TouchableOpacity onPress={() => this.onPressAdd(key, day)} style={styles.dayRowIcon}>
+            <Icon ref={key} name="circle-with-plus" color="#0099CC" size={25} />
+          </TouchableOpacity>
+        </View>
+      );
+    }
+    function rc({ key, day }, index, isActive) {
       const filteredEvents = this.events.filter((event) => {
         const today = new Date();
         const tomorrow = new Date(new Date().getTime() + 24 * 60 * 60 * 1000);
@@ -327,33 +336,23 @@ class Home extends React.Component {
         }
         return false;
       });
-      const header = (
-        <View style={styles.dayRow}>
-          <Text style={styles.dayRowText}>{day}</Text>
-          <TouchableOpacity onPress={() => this.onPressAdd(key, day)} style={styles.dayRowIcon}>
-            <Icon ref={key} name="circle-with-plus" color="#0099CC" size={25} />
-          </TouchableOpacity>
-        </View>
-      );
-
-
-      const content = (
+      return (
         <EventList events={filteredEvents} />
       );
-      return (
-        <Accordion
-          animationDuration={10}
-          underlayColor="white"
-          key={day}
-          header={header}
-          content={content}
-          easing="linear"
-          // zonPress={this.setState({ hej: 'hej' })}
-        />
-      );
-    });
+    }
+    const renderHeader = rh.bind(this);
+    const renderContent = rc.bind(this);
 
-    return rows;
+
+    return (
+      <Accordion
+        // duration={500}
+        underlayColor="white"
+        sections={days}
+        renderHeader={renderHeader}
+        renderContent={renderContent}
+      />
+    );
   }
 
   render() {
