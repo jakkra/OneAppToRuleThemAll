@@ -1,6 +1,6 @@
 import { connect } from 'react-redux';
 import NavigationRoot from '../components/NavRoot';
-import { push, pop } from '../actions/navAction';
+import { push, pop, reset } from '../actions/navAction';
 
 function mapStateToProps(state) {
   return {
@@ -13,6 +13,7 @@ export default connect(
   {
     pushRoute: (route) => push(route),
     popRoute: () => pop(),
+    resetRoute: () => reset(),
   }
 )(NavigationRoot);
 

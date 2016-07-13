@@ -176,8 +176,8 @@ class Login extends React.Component {
     const route = {
       type: 'push',
       route: {
-        key: 'home',
-        title: 'Home',
+        key: 'menu',
+        title: 'Menu',
       },
     };
     this.props.handleNavigate(route);

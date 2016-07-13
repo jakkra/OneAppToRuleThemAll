@@ -95,13 +95,6 @@ const styles = StyleSheet.create({
 
 });
 
-/* const route = {
-  type: 'push',
-  route: {
-    key: 'about',
-    title: 'About',
-  },
-};*/
 const days = [
   { key: 'todayIcon', day: 'TODAY' },
   { key: 'tomorrowIcon', day: 'TOMORROW' },
@@ -138,6 +131,7 @@ class Home extends React.Component {
     this.sendDeviceTokenToServer = this.sendDeviceTokenToServer.bind(this);
     this.registerToPushNotifications = this.registerToPushNotifications.bind(this);
   }
+
   componentDidMount() {
     this.onRefresh();
     BackAndroid.addEventListener('hardwareBackPress', this.handleBackAction);
@@ -174,7 +168,6 @@ class Home extends React.Component {
   }
 
   onPressAdd(key, day) {
-    console.log(key, day, this.refs);
     // this.refs[key].jello();
     this.refs.scrollReminders.fadeOut({ duration: 300 });
     let date = null;
@@ -188,7 +181,6 @@ class Home extends React.Component {
   }
 
   sendDeviceTokenToServer(deviceToken) {
-    console.log(deviceToken);
     fetch(config.serverURL + '/api/user/device', {
       method: 'post',
       headers: {
@@ -202,7 +194,6 @@ class Home extends React.Component {
     })
     .then(response => response.json())
     .then(json => {
-      console.log(json);
       if (json.success === true) {
         ToastAndroid.show('Successfully send deviceToken', ToastAndroid.SHORT);
       } else {
@@ -221,12 +212,10 @@ class Home extends React.Component {
   }
 
   handleNotification(notification) {
-    console.log('---------', notification);
     let reminder;
     if (notification.reminder !== undefined) {
       reminder = JSON.parse(notification.reminder);
     }
-    console.log(reminder);
     PushNotification.localNotification({
       /* Android Only Properties */
       title: 'Reminder',
@@ -306,8 +295,7 @@ class Home extends React.Component {
 
 
   renderDayRows() {
-    function rh({ key, day }, index, isActive) {
-      console.log(key, day);
+    function rh({ key, day }) {
       return (
         <View style={styles.dayRow}>
           <Text style={styles.dayRowText}>{day}</Text>
@@ -317,7 +305,7 @@ class Home extends React.Component {
         </View>
       );
     }
-    function rc({ key, day }, index, isActive) {
+    function rc({ key, day }) {
       const filteredEvents = this.events.filter((event) => {
         const today = new Date();
         const tomorrow = new Date(new Date().getTime() + 24 * 60 * 60 * 1000);
@@ -337,7 +325,7 @@ class Home extends React.Component {
         return false;
       });
       return (
-        <EventList events={filteredEvents} />
+        <EventList key={key} events={filteredEvents} />
       );
     }
     const renderHeader = rh.bind(this);

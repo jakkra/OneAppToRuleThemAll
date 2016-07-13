@@ -1,6 +1,9 @@
 import React, { Component } from 'react';
 import Home from './Home';
 import Login from './Login';
+import Graph from './Graph';
+import Menu from './Menu';
+import Lights from './Lights';
 
 import {
   BackAndroid,
@@ -17,6 +20,7 @@ class NavRoot extends Component {
     navigation: React.PropTypes.object.isRequired,
     popRoute: React.PropTypes.func.isRequired,
     pushRoute: React.PropTypes.func.isRequired,
+    resetRoute: React.PropTypes.func.isRequired,
   }
 
   constructor(props) {
@@ -41,6 +45,8 @@ class NavRoot extends Component {
       case 'back':
       case 'pop':
         return this.handleBackAction();
+      case 'reset':
+        return this.props.resetRoute();
       default:
         return false;
     }
@@ -61,17 +67,21 @@ class NavRoot extends Component {
       return <Home handleNavigate={this.handleNavigate} />;
     } else if (scene.key === prefix + 'login') {
       return <Login goBack={this.handleBackAction} handleNavigate={this.handleNavigate} />;
+    } else if (scene.key === prefix + 'graph') {
+      return <Graph handleNavigate={this.handleNavigate} />;
+    } else if (scene.key === prefix + 'menu') {
+      return <Menu goBack={this.handleBackAction} handleNavigate={this.handleNavigate} />;
+    } else if (scene.key === prefix + 'lights') {
+      return <Lights goBack={this.handleBackAction} handleNavigate={this.handleNavigate} />;
     }
-    /* if (scene.key === prefix + 'about') {
-      return <About goBack={this.handleBackAction} />;
-    }*/
+
     return null;
   }
 
   render() {
     return (
       <NavigationCardStack
-        direction="vertical"
+        direction="horizontal"
         navigationState={this.props.navigation}
         onNavigate={this.handleNavigate}
         renderScene={this.renderScene}

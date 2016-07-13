@@ -79,7 +79,7 @@ class EventList extends React.Component {
       case 'edit':
         break;
       case 'complete':
-        this.refs['checkIcon' + eventId].flash();
+        // this.refs['checkIcon' + eventId].flash();
         this.props.editReminder({
           id: eventId,
           completed: !event.completed,

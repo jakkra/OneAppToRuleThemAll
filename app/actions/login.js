@@ -82,7 +82,6 @@ function authenticateToServer(dispatch, email, password) {
 		.then(response => checkStatus(response))
 		.then(response => response.json())
 		.then(json => {
-      console.log(json);
   if (json.success) {
     dispatch(loginSuccess(json));
   } else {
@@ -90,7 +89,6 @@ function authenticateToServer(dispatch, email, password) {
   }
 })
 .catch(error => {
-  console.log(error);
   dispatch(loginFailure(error));
 });
 }
