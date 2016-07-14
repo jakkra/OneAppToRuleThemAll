@@ -13,6 +13,7 @@ import ReactNative, {
   TimePickerAndroid,
   DatePickerAndroid,
   ToastAndroid,
+  InteractionManager,
 } from 'react-native';
 
 import { connect } from 'react-redux';
@@ -133,7 +134,9 @@ class Home extends React.Component {
   }
 
   componentDidMount() {
-    this.onRefresh();
+    InteractionManager.runAfterInteractions(() => {
+      this.onRefresh();
+    });
     BackAndroid.addEventListener('hardwareBackPress', this.handleBackAction);
     this.registerToPushNotifications();
   }

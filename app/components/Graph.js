@@ -7,9 +7,11 @@ import {
   Picker,
   Dimensions,
   Text,
+  InteractionManager,
 } from 'react-native';
 import {
   MKRangeSlider,
+  MKProgress,
 } from 'react-native-material-kit';
 
 import { connect } from 'react-redux';
@@ -42,8 +44,8 @@ const styles = StyleSheet.create({
     color: '#0099CC',
   },
   chart: {
-    width: 350,
-    height: 180,
+    width: 400,
+    height: 250,
     marginTop: 2,
   },
   picker: {
@@ -58,8 +60,12 @@ const styles = StyleSheet.create({
   },
   graphLabel: {
     color: '#0099CC',
-    fontSize: 16,
+    fontSize: 18,
     fontWeight: 'bold',
+  },
+  progress: {
+    width: 200,
+    //height: 2,
   },
 });
 
@@ -78,10 +84,13 @@ class Graph extends React.Component {
 
     this.today = new Date();
     this.oneWeekAgo = new Date();
-    this.oneWeekAgo.setDate(this.oneWeekAgo.getDate() - 2);
+    this.oneWeekAgo.setDate(this.oneWeekAgo.getDate() - 7);
+    this.oneWeekAgo.setHours(0);
+    this.oneWeekAgo.setMinutes(1);
     this.lastSevenDays = this.getLastDays();
     this.lastWeekData = [];
     this.state = {
+      mountedAndFetched: false,
       data: [[new Date(), 0]],
       lessData: [[new Date(), 0]],
       dayData: [[new Date(), 0]],
@@ -98,12 +107,9 @@ class Graph extends React.Component {
   }
 
   componentDidMount() {
-    this.timerId = setTimeout(() => {
+    InteractionManager.runAfterInteractions(() => {
       this.props.fetchTemperatures(this.props.loginReducer.accessToken);
-      clearInterval(this.timer);
-    }, 2000);
-
-  //   this.props.fetchTemperatures(this.props.loginReducer.accessToken);
+    });
   }
 
   componentWillReceiveProps(nextProps) {
@@ -125,6 +131,7 @@ class Graph extends React.Component {
           selectedDayData = [[new Date(), 0]];
         }
         this.setState({
+          mountedAndFetched: true,
           data: chartData,
           lessData: chartData,
           dayData: selectedDayData,
@@ -167,6 +174,7 @@ class Graph extends React.Component {
       dayData: selectedDayData,
     });
   }
+
   renderXLabel(val) {
     const firstDate = new Date(this.state.lessData[0][0]);
     const lastDate = new Date(this.state.lessData[this.state.lessData.length - 1][0]);
@@ -178,6 +186,18 @@ class Graph extends React.Component {
   }
 
   render() {
+    if (this.state.mountedAndFetched === false) {
+      return (
+        <View style={styles.container}>
+          <View style={styles.header}>
+            <Text style={styles.headerText}>Temperatures at home</Text>
+          </View>
+          <MKProgress.Indeterminate
+            style={styles.progress}
+          />
+        </View>
+        );
+    }
     const firstDate = new Date(this.state.lessData[0][0]);
     const lastDate = new Date(this.state.lessData[this.state.lessData.length - 1][0]);
     let graphLabel = '';
@@ -215,7 +235,7 @@ class Graph extends React.Component {
           type="line"
           tightBounds={true}
           showDataPoint={false}
-          yAxisWidth={30}
+          yAxisWidth={40}
           xAxisTransform={this.renderXLabel}
           yAxisTransform={(d) => d + '°C'}
         />
@@ -229,10 +249,10 @@ class Graph extends React.Component {
 
           onConfirm={(curValue) => {
             this.setState({
-              /*lessData: this.state.data.slice(
+              lessData: this.state.data.slice(
                 Math.round(curValue.min),
                 Math.round(curValue.max)
-              ),*/
+              ),
               min: curValue.min,
               max: curValue.max,
             });
@@ -252,7 +272,7 @@ class Graph extends React.Component {
           gridLineWidth={0.2}
           type="line"
           showDataPoint={false}
-          yAxisWidth={30}
+          yAxisWidth={40}
           xAxisTransform={(val) => toHourMinutes(new Date(val))}
           yAxisTransform={(d) => d + '°C'}
         />
