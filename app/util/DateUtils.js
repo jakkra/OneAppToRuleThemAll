@@ -15,6 +15,10 @@ export function getDayName(dayOfWeek) {
   return weekDays[dayOfWeek];
 }
 
+export function toDateMonth(date) {
+  return date.getDate() + '/' + date.getMonth();
+}
+
 export function toHourMinutes(date) {
   let minute = date.getMinutes();
   let hour = date.getHours();

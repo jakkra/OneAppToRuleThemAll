@@ -8,24 +8,29 @@ import {
   Dimensions,
   Text,
   TouchableOpacity,
+  InteractionManager,
 } from 'react-native';
+
 import {
   MKSlider,
+  MKProgress,
+  MKSwitch,
+  MKColor,
 } from 'react-native-material-kit';
 
 import { connect } from 'react-redux';
 import { sendHueLightChange, fetchHueLighsInfo } from '../actions/light';
 
-import { createAnimatableComponent } from 'react-native-animatable';
+import Accordion from 'react-native-collapsible/Accordion';
 
-import Ic from 'react-native-vector-icons/FontAwesome';
+import IconFA from 'react-native-vector-icons/FontAwesome';
+import IconMA from 'react-native-vector-icons/MaterialIcons';
 
-const Icon = createAnimatableComponent(Ic);
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    alignItems: 'center',
+    alignItems: 'flex-start',
     backgroundColor: 'white',
     flexDirection: 'column',
   },
@@ -58,12 +63,39 @@ const styles = StyleSheet.create({
   listRow: {
     flex: 1,
     flexDirection: 'row',
-    justifyContent: 'flex-start',
     alignItems: 'center',
+    marginTop: 10,
+    marginBottom: 10,
+    width: Dimensions.get('window').width,
   },
   lampText: {
-    fontSize: 20,
+    flex: 0.8,
+    fontSize: 30,
     color: 'gray',
+    marginLeft: 30,
+  },
+  progress: {
+    width: Dimensions.get('window').width,
+  },
+  lampIcon: {
+    flex: 0.1,
+    marginLeft: 30,
+  },
+  switch: {
+  },
+  divider: {
+    backgroundColor: 'rgba(0, 0, 0, 0.1)',
+    paddingVertical: 5,
+  },
+  dividerText: {
+    fontSize: 25,
+    fontWeight: 'bold',
+    color: '#0099CC',
+    marginLeft: 30,
+  },
+  slider: {
+    width: 300,
+    alignSelf: 'center',
   },
 });
 
@@ -82,15 +114,18 @@ class Lights extends React.Component {
     super(props);
     this.state = {
       brightness: 127,
-      lights: [],
-      groups: [],
+      lights: null,
+      groups: null,
     };
     this.renderLights = this.renderLights.bind(this);
     this.renderGroups = this.renderGroups.bind(this);
+    this.renderContent = this.renderContent.bind(this);
   }
 
   componentDidMount() {
-    this.props.fetchHueLighsInfo(this.props.loginReducer.accessToken);
+    InteractionManager.runAfterInteractions(() => {
+      this.props.fetchHueLighsInfo(this.props.loginReducer.accessToken);
+    });
   }
 
   componentWillReceiveProps(nextProps) {
@@ -103,53 +138,150 @@ class Lights extends React.Component {
     }
     if (this.props.lightReducer.info === null &&
       nextProps.lightReducer.info !== null) {
+      const lights = Object.keys(nextProps.lightReducer.info.lights).map((key, index) => {
+        return nextProps.lightReducer.info.lights[key];
+      })
+    console.log(lights);
+      const groups = Object.keys(nextProps.lightReducer.info.groups).map((key, index) => {
+        return nextProps.lightReducer.info.groups[key];
+      }) 
+
       this.setState({
-        lights: nextProps.lightReducer.info.lights,
-        groups: nextProps.lightReducer.info.groups,
+        lights: lights,
+        groups: groups,
       });
     }
   }
 
+  renderContent(light) {
+    return (
+      <MKSlider
+        min={0}
+        max={255}
+        value={this.state.brightness}
+        style={styles.slider}
+        ref="brightnessSlider"
+        onConfirm={(curValue) => {
+          this.setState({
+            brightness: curValue,
+          });
+        }}
+      />
+    );
+  }
+
   renderLights() {
-    const rows = Object.keys(this.state.lights).map((light, index) => {
+    function rh(light) {
+      console.log(light);
       return (
-        <View key={index} style={styles.listRow}>
-          <Icon ref="lightBulb" key={index} name="lightbulb-o" color="yellow" size={40} />
-          <Text style={styles.lampText}>{this.state.lights[light].name}</Text>
+        <View style={styles.listRow}>
+          <IconFA
+            ref="lightBulb"
+            style={styles.lampIcon}
+            name="lightbulb-o"
+            color={(light.state.on === true) ? MKColor.Yellow : MKColor.Grey} size={40}
+          />
+          <Text style={styles.lampText}>{light.name}</Text>
+          <MKSwitch style={styles.switch}
+            onColor='rgba(255, 152, 0, 0.3)'
+            thumbOnColor={MKColor.Yellow}
+            thumbOffColor='#0099CC'
+            rippleColor='rgba(255, 152 ,0 , 0.2)'
+            // onPress={() => console.log('orange switch pressed')}
+            onCheckedChange={(val) => this.lampToggle(light, val)}
+              />
         </View>
       );
-    });
-    return rows;
+    }
+    const renderHeader = rh.bind(this);
+    return (
+      <View>
+        <Accordion
+          underlayColor="white"
+          sections={this.state.lights}
+          renderHeader={renderHeader}
+          renderContent={this.renderContent}
+        />
+      </View>
+    );
   }
 
   renderGroups() {
-    return null;
+    function rh(group) {
+      return (
+        <View style={styles.listRow}>
+          <IconMA
+            ref="groupIcon"
+            style={styles.lampIcon}
+            name="group-work"
+            color={(group.state.all_on === true) ? MKColor.Yellow : MKColor.Red}
+            size={29}
+          />
+          <Text style={styles.lampText}>{group.name}</Text>
+          <MKSwitch style={styles.switch}
+            onColor='rgba(255, 152, 0, 0.3)'
+            thumbOnColor={MKColor.Yellow}
+            thumbOffColor='#0099CC'
+            rippleColor='rgba(255, 152 ,0 , 0.2)'
+            onCheckedChange={(val) => this.lampToggle(group, val)}
+          />
+        </View>
+      );
+    }
+    const renderHeader = rh.bind(this);
+
+    return (
+      <View>
+        <Accordion
+          underlayColor="white"
+          sections={this.state.groups}
+          renderHeader={renderHeader}
+          renderContent={this.renderContent}
+        />
+      </View>
+    );
+  }
+
+  renderDivider(text) {
+    return (
+      <View style={styles.divider}>
+        <Text style={styles.dividerText}>{text}</Text>
+      </View>
+    );
+  }
+
+  lampToggle(light, val) {
+    console.log(light, val);
   }
 
   render() {
+    console.log(this.state.lights);
+    if (this.state.lights === null) {
+      return (
+        <View style={styles.container}>
+          <View style={styles.header}>
+          <Text style={styles.headerText}>Let there be light!</Text>
+        </View>
+        <MKProgress.Indeterminate
+          style={styles.progress}
+        />
+        </View>
+      );
+    }
     return (
       <View style={styles.container}>
         <View style={styles.header}>
           <Text style={styles.headerText}>Let there be light!</Text>
         </View>
-        <MKSlider
-          min={0}
-          max={255}
-          value={this.state.brightness}
-          style={{ width: 200 }}
-          ref="brightnessSlider"
-          onConfirm={(curValue) => {
-            this.setState({
-              brightness: curValue,
-            });
-          }}
-        />
         <ScrollView
           ref="scrollView"
           style={styles.scrollView}
         >
+          {this.renderDivider('Lights')}
           {this.renderLights()}
+          {this.renderDivider('Groups')}
           {this.renderGroups()}
+
         </ScrollView>
       </View>
     );

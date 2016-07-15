@@ -9,6 +9,7 @@ import {
   Text,
   InteractionManager,
 } from 'react-native';
+
 import {
   MKRangeSlider,
   MKProgress,
@@ -16,7 +17,7 @@ import {
 
 import { connect } from 'react-redux';
 import { fetchTemperatures } from '../actions/data';
-import { getDayName, toHourMinutes } from '../util/DateUtils';
+import { getDayName, toHourMinutes, toDateMonth } from '../util/DateUtils';
 
 import Chart from './Charts/Chart';
 
@@ -64,8 +65,7 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
   progress: {
-    width: 200,
-    //height: 2,
+    width: Dimensions.get('window').width,
   },
 });
 
@@ -149,11 +149,11 @@ class Graph extends React.Component {
     let dayName;
     for (let i = initialDayNbr; i < 7 + initialDayNbr; i++) {
       if (i === initialDayNbr) {
-        dayName = 'Today';
+        dayName = 'Today ' + toDateMonth(today);
       } else if (i === initialDayNbr + 1) {
-        dayName = 'Yesterday';
+        dayName = 'Yesterday ' + toDateMonth(today);
       } else {
-        dayName = getDayName(today.getDay());
+        dayName = getDayName(today.getDay()) + ' ' + toDateMonth(today);
       }
       lastSevenDays.push({ label: dayName, key: (i % 7), date: new Date(today) });
       today.setDate(today.getDate() - 1);
@@ -196,7 +196,7 @@ class Graph extends React.Component {
             style={styles.progress}
           />
         </View>
-        );
+      );
     }
     const firstDate = new Date(this.state.lessData[0][0]);
     const lastDate = new Date(this.state.lessData[this.state.lessData.length - 1][0]);
