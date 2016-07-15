@@ -80,7 +80,7 @@ export function fetchHueLighsInfo(token) {
     startFetchInfo(dispatch, token);
   };
 }
-function sendLightChange(dispatch, token, url, params) {
+function sendLightChange(dispatch, token, params) {
   fetch(config.serverURL + '/api/light', {
     method: 'post',
     headers: {
@@ -88,11 +88,12 @@ function sendLightChange(dispatch, token, url, params) {
       'Content-Type': 'application/json',
       'x-access-token': token,
     },
-    body: JSON.stringify(event, url, params),
+    body: JSON.stringify(params),
   })
   .then(response => checkStatus(response))
   .then(response => response.json())
   .then(json => {
+    console.log(json);
     if (json.success === true) {
       dispatch(sendLightChangeSuccess(json));
     } else {
@@ -102,9 +103,19 @@ function sendLightChange(dispatch, token, url, params) {
   .catch(error => dispatch(sendLightChangeFailure(error)));
 }
 
-export function sendHueLightChange(token, url, params) {
+export function changeLightState(token, lightId, params) {
+  params.url = '/api/0/lights/' + lightId + '/state';
   return (dispatch) => {
     dispatch(sendLightChangeRequest());
-    sendLightChange(dispatch, token, url, params);
+    sendLightChange(dispatch, token, params);
   };
 }
+
+export function changeGroupState(token, groupId, state) {
+  params.url = '/api/0/lights/' + lightId + '/state';
+  return (dispatch) => {
+    dispatch(sendLightChangeRequest());
+    sendLightChange(dispatch, token, params);
+  };
+}
+

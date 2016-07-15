@@ -3,5 +3,5 @@
  */
 module.exports = {
   serverURL: 'https://radiant-wave-58367.herokuapp.com',
-  // serverURL: 'http://localhost:5000',
+  //serverURL: 'http://192.168.1.156:5000',
 };

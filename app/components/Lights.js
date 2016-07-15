@@ -19,7 +19,7 @@ import {
 } from 'react-native-material-kit';
 
 import { connect } from 'react-redux';
-import { sendHueLightChange, fetchHueLighsInfo } from '../actions/light';
+import { fetchHueLighsInfo, changeLightState, changeGroupState } from '../actions/light';
 
 import Accordion from 'react-native-collapsible/Accordion';
 
@@ -105,7 +105,8 @@ class Lights extends React.Component {
   static propTypes = {
     handleNavigate: React.PropTypes.func.isRequired,
     fetchHueLighsInfo: React.PropTypes.func.isRequired,
-    sendHueLightChange: React.PropTypes.func.isRequired,
+    changeGroupState: React.PropTypes.func.isRequired,
+    changeLightState: React.PropTypes.func.isRequired,
     loginReducer: React.PropTypes.object.isRequired,
     lightReducer: React.PropTypes.object.isRequired,
   };
@@ -139,11 +140,14 @@ class Lights extends React.Component {
     if (this.props.lightReducer.info === null &&
       nextProps.lightReducer.info !== null) {
       const lights = Object.keys(nextProps.lightReducer.info.lights).map((key, index) => {
-        return nextProps.lightReducer.info.lights[key];
+        const light = nextProps.lightReducer.info.lights[key];
+        light.key = key;
+        return light;
       })
-    console.log(lights);
       const groups = Object.keys(nextProps.lightReducer.info.groups).map((key, index) => {
-        return nextProps.lightReducer.info.groups[key];
+        const group =  nextProps.lightReducer.info.groups[key];
+        group.key = key;
+        return group;
       }) 
 
       this.setState({
@@ -153,26 +157,38 @@ class Lights extends React.Component {
     }
   }
 
+  changeHueState(hue, params) {
+    if (hue.type === 'ROOM ') {
+      this.props.changeGroupState(
+        this.props.loginReducer.accessToken,
+        hue.key,
+        params
+      );
+    } else {
+      this.props.changeLightState(
+        this.props.loginReducer.accessToken,
+        hue.key,
+        params
+      );
+    }
+  }
+
+
   renderContent(light) {
     return (
       <MKSlider
         min={0}
-        max={255}
+        max={254}
         value={this.state.brightness}
         style={styles.slider}
         ref="brightnessSlider"
-        onConfirm={(curValue) => {
-          this.setState({
-            brightness: curValue,
-          });
-        }}
+        onConfirm={(val) => this.changeHueState(light, { on: true, bri: val })}
       />
     );
   }
 
   renderLights() {
     function rh(light) {
-      console.log(light);
       return (
         <View style={styles.listRow}>
           <IconFA
@@ -183,12 +199,12 @@ class Lights extends React.Component {
           />
           <Text style={styles.lampText}>{light.name}</Text>
           <MKSwitch style={styles.switch}
+            checked={light.state.on}
             onColor='rgba(255, 152, 0, 0.3)'
             thumbOnColor={MKColor.Yellow}
             thumbOffColor='#0099CC'
             rippleColor='rgba(255, 152 ,0 , 0.2)'
-            // onPress={() => console.log('orange switch pressed')}
-            onCheckedChange={(val) => this.lampToggle(light, val)}
+            onCheckedChange={(val) => this.changeHueState(light, { on: val.checked })}
               />
         </View>
       );
@@ -219,11 +235,12 @@ class Lights extends React.Component {
           />
           <Text style={styles.lampText}>{group.name}</Text>
           <MKSwitch style={styles.switch}
+            checked={group.state.all_on}
             onColor='rgba(255, 152, 0, 0.3)'
             thumbOnColor={MKColor.Yellow}
             thumbOffColor='#0099CC'
             rippleColor='rgba(255, 152 ,0 , 0.2)'
-            onCheckedChange={(val) => this.lampToggle(group, val)}
+            onCheckedChange={(val) => this.changeHueState(group, { on: val.checked })}
           />
         </View>
       );
@@ -250,12 +267,7 @@ class Lights extends React.Component {
     );
   }
 
-  lampToggle(light, val) {
-    console.log(light, val);
-  }
-
   render() {
-    console.log(this.state.lights);
     if (this.state.lights === null) {
       return (
         <View style={styles.container}>
@@ -297,7 +309,8 @@ function mapStateToProps(state) {
 
 function mapDispatchToProps(dispatch) {
   return {
-    sendHueLightChange: (...args) => { dispatch(sendHueLightChange(...args)); },
+    changeGroupState: (...args) => { dispatch(changeGroupState(...args)); },
+    changeLightState: (...args) => { dispatch(changeLightState(...args)); },
     fetchHueLighsInfo: (...args) => { dispatch(fetchHueLighsInfo(...args)); },
 
   };
