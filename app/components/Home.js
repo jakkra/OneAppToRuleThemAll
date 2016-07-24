@@ -23,10 +23,6 @@ import EventList from './EventList';
 import Accordion from 'react-native-collapsible/Accordion';
 import { createAnimatableComponent } from 'react-native-animatable';
 const ScrollView = createAnimatableComponent(ReactNative.ScrollView);
-import PushNotification from 'react-native-push-notification';
-
-
-import config from '../util/config';
 
 import Ic from 'react-native-vector-icons/Entypo';
 
@@ -64,11 +60,11 @@ const styles = StyleSheet.create({
     flex: 1,
     flexDirection: 'row',
     alignItems: 'center',
-    height: 40,
+    height: 50,
   },
   dayRowText: {
     color: '#0099CC',
-    fontSize: 22,
+    fontSize: 26,
     fontWeight: 'bold',
     alignSelf: 'center',
     justifyContent: 'flex-start',
@@ -92,8 +88,6 @@ const styles = StyleSheet.create({
   dayRowOpen: {
 
   },
-
-
 });
 
 const days = [
@@ -101,6 +95,8 @@ const days = [
   { key: 'tomorrowIcon', day: 'TOMORROW' },
   { key: 'upcomingIcon', day: 'UPCOMING' },
   { key: 'somedayIcon', day: 'SOMEDAY' },
+  { key: 'unfinishedIcon', day: 'UNFINISHED' },
+
 ];
 
 class Home extends React.Component {
@@ -129,8 +125,6 @@ class Home extends React.Component {
     this.onPressAdd = this.onPressAdd.bind(this);
     this.createNewReminder = this.createNewReminder.bind(this);
     this.handleBackAction = this.handleBackAction.bind(this);
-    this.sendDeviceTokenToServer = this.sendDeviceTokenToServer.bind(this);
-    this.registerToPushNotifications = this.registerToPushNotifications.bind(this);
   }
 
   componentDidMount() {
@@ -138,7 +132,6 @@ class Home extends React.Component {
       this.onRefresh();
     });
     BackAndroid.addEventListener('hardwareBackPress', this.handleBackAction);
-    this.registerToPushNotifications();
   }
 
   componentWillReceiveProps(nextProps) {
@@ -181,55 +174,6 @@ class Home extends React.Component {
     }
     this.setState({ createReminder: true, reminderDay: date });
     this.refs.headerInput.focus();
-  }
-
-  sendDeviceTokenToServer(deviceToken) {
-    fetch(config.serverURL + '/api/user/device', {
-      method: 'post',
-      headers: {
-        Accept: 'application/json',
-        'Content-Type': 'application/json',
-        'x-access-token': this.props.loginReducer.accessToken,
-      },
-      body: JSON.stringify({
-        deviceToken,
-      }),
-    })
-    .then(response => response.json())
-    .then(json => {
-      if (json.success === true) {
-        ToastAndroid.show('Successfully send deviceToken', ToastAndroid.SHORT);
-      } else {
-        ToastAndroid.show('Failed to send deviceToken', ToastAndroid.SHORT);
-      }
-    });
-  }
-
-  registerToPushNotifications() {
-    PushNotification.configure({
-      onRegister: (response) => this.sendDeviceTokenToServer(response.token),
-      onNotification: (notification) => this.handleNotification(notification),
-      senderID: '497309261287',
-      popInitialNotification: true,
-    });
-  }
-
-  handleNotification(notification) {
-    let reminder;
-    if (notification.reminder !== undefined) {
-      reminder = JSON.parse(notification.reminder);
-    }
-    PushNotification.localNotification({
-      /* Android Only Properties */
-      title: 'Reminder',
-      autoCancel: true,
-      largeIcon: 'ic_launcher',
-      smallIcon: 'ic_notification',
-      // bigText: 'Don't forget', // (optional) default: "message" prop
-      subText: "Don't forget!",
-      color: 'blue', // (optional) default: system default
-      message: reminder.title,
-    });
   }
 
   handleEndCreateReminder() {
@@ -303,7 +247,7 @@ class Home extends React.Component {
         <View style={styles.dayRow}>
           <Text style={styles.dayRowText}>{day}</Text>
           <TouchableOpacity onPress={() => this.onPressAdd(key, day)} style={styles.dayRowIcon}>
-            <Icon ref={key} name="circle-with-plus" color="#0099CC" size={25} />
+            <Icon ref={key} name="circle-with-plus" color="#0099CC" size={30} />
           </TouchableOpacity>
         </View>
       );

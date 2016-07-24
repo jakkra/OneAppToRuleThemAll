@@ -22,7 +22,7 @@ import java.util.List;
 
 public class MainApplication extends Application implements ReactApplication {
   private Application mApplication = this;
-  private ReactNativePushNotificationPackage reactNativePushNotificationPackage;
+  private ReactNativePushNotificationPackage mReactNativePushNotificationPackage; // <------ Add Package Variable
 
   private final ReactNativeHost mReactNativeHost = new ReactNativeHost(this) {
     @Override
@@ -32,18 +32,23 @@ public class MainApplication extends Application implements ReactApplication {
 
     @Override
     protected List<ReactPackage> getPackages() {
-      reactNativePushNotificationPackage = new ReactNativePushNotificationPackage();
+      mReactNativePushNotificationPackage = new ReactNativePushNotificationPackage(); // <------ Initialize the Package
 
       return Arrays.<ReactPackage>asList(
           new MainReactPackage(),
           new ReactMaterialKitPackage(),
           new VectorIconsPackage(),
-          reactNativePushNotificationPackage
+          mReactNativePushNotificationPackage
       );
     }
   };
-  public ReactNativePushNotificationPackage getReactNativePushNotificationPackage() { return reactNativePushNotificationPackage; }
 
+  // Add onNewIntent
+ public void onNewIntent(Intent intent) {
+    if ( mReactNativePushNotificationPackage != null ) {
+        mReactNativePushNotificationPackage.newIntent(intent);
+    }
+ }
   @Override
   public ReactNativeHost getReactNativeHost() {
       return mReactNativeHost;

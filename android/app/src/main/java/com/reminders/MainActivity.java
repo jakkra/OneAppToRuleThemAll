@@ -35,13 +35,6 @@ public class MainActivity extends ReactActivity {
     @Override
     public void onNewIntent(Intent intent) {
         super.onNewIntent(intent);
-
-        MainApplication application = (MainApplication) this.getApplication();
-
-        ReactNativePushNotificationPackage pushPackage = application.getReactNativePushNotificationPackage();
-
-        if (pushPackage != null) {
-            pushPackage.newIntent(intent);
-        }
+        ((MainApplication) getApplication()).onNewIntent(intent);
     }
 }

@@ -7,9 +7,17 @@ import {
   Dimensions,
   Text,
   TouchableOpacity,
+  ToastAndroid,
 } from 'react-native';
 
+import { connect } from 'react-redux';
+
+
 import { createAnimatableComponent } from 'react-native-animatable';
+
+import PushNotification from 'react-native-push-notification';
+import config from '../util/config';
+
 import IcFA from 'react-native-vector-icons/FontAwesome';
 import IcIO from 'react-native-vector-icons/Ionicons';
 
@@ -63,6 +71,8 @@ export default class Menu extends React.Component {
   static propTypes = {
     handleNavigate: React.PropTypes.func.isRequired,
     goBack: React.PropTypes.func.isRequired,
+    loginReducer: React.PropTypes.object.isRequired,
+
   };
 
   constructor(props) {
@@ -71,6 +81,77 @@ export default class Menu extends React.Component {
     this.openGraph = this.openGraph.bind(this);
     this.logOut = this.logOut.bind(this);
     this.openLights = this.openLights.bind(this);
+    this.sendDeviceTokenToServer = this.sendDeviceTokenToServer.bind(this);
+    this.registerToPushNotifications = this.registerToPushNotifications.bind(this);
+  }
+
+  componentDidMount() {
+    this.registerToPushNotifications();
+  }
+
+  sendDeviceTokenToServer(deviceToken) {
+    fetch(config.serverURL + '/api/user/device', {
+      method: 'post',
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'application/json',
+        'x-access-token': this.props.loginReducer.accessToken,
+      },
+      body: JSON.stringify({
+        deviceToken,
+      }),
+    })
+    .then(response => response.json())
+    .then(json => {
+      if (json.success === true) {
+        ToastAndroid.show('Successfully send deviceToken', ToastAndroid.SHORT);
+      } else {
+        ToastAndroid.show('Failed to send deviceToken', ToastAndroid.SHORT);
+      }
+    });
+  }
+
+  registerToPushNotifications() {
+    PushNotification.configure({
+      onRegister: (response) => this.sendDeviceTokenToServer(response.token),
+      onNotification: (notification) => this.handleNotification(notification),
+      senderID: '497309261287',
+      popInitialNotification: true,
+    });
+  }
+
+  handleNotification(notification) {
+    if (notification.userInteraction === false) {
+      let reminder;
+      if (notification.reminder !== undefined) {
+        reminder = JSON.parse(notification.reminder);
+        PushNotification.localNotification({
+          title: 'Reminder',
+          autoCancel: true,
+          largeIcon: 'ic_launcher',
+          smallIcon: 'ic_notification',
+          subText: 'Don\'t forget!',
+          color: 'red', // (optional) default: system default
+          message: reminder.title,
+        });
+      } else if (notification.type === 'surveillance') {
+        PushNotification.localNotification({
+          title: 'Warning',
+          tag: 'warning',
+          autoCancel: true,
+          largeIcon: 'ic_launcher',
+          smallIcon: 'ic_notification',
+          color: 'blue', // (optional) default: system default
+          message: 'Movement detected at home!',
+        });
+      }
+    } else { // TODO Wrong, still need to check type here
+      console.log('Pressed notification', notification);
+      if (notification.tag === 'warning') {
+        console.log('warning');
+        this.openReminders();
+      }
+    }
   }
 
   openReminders() {
@@ -156,3 +237,16 @@ export default class Menu extends React.Component {
     );
   }
 }
+
+function mapStateToProps(state) {
+  return {
+    loginReducer: state.login,
+  };
+}
+
+function mapDispatchToProps(dispatch) {
+  return {
+  };
+}
+
+module.exports = connect(mapStateToProps, mapDispatchToProps)(Menu);

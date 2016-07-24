@@ -34,16 +34,16 @@ const styles = StyleSheet.create({
     //paddingTop: 10,
   },
   eventTitleText: {
-    fontSize: 21,
+    fontSize: 24,
     color: 'dimgray',
     marginLeft: 15,
-    marginBottom: 2,
+    marginBottom: 5,
   },
   openContainer: {
     marginBottom: 10,
     paddingLeft: 20,
-    borderBottomWidth: 0.2,
-    borderBottomColor: 'lightgray',
+    //borderBottomWidth: 0.2,
+    //borderBottomColor: 'lightgray',
     flexDirection: 'column',
   },
   row: {
@@ -68,9 +68,9 @@ class EventList extends React.Component {
 
   getCompleatedIcon(event) {
     if (event.completed === true) {
-      return { name: 'check-circle', color: 'lime' };
+      return { name: 'check-circle-o', color: 'lime' };
     }
-    return { name: 'circle-thin', color: '#0099CC' };
+    return { name: 'circle-o', color: '#0099CC' };
   }
 
   updateReminder(eventId, field) {
@@ -108,7 +108,7 @@ class EventList extends React.Component {
     }
   }
 
-  renderHeader(event, index, isActive) {
+  renderHeader(event) {
     const icon = this.getCompleatedIcon(event);
     return (
       <View animation="slideInDown" style={styles.listElement}>
@@ -116,11 +116,12 @@ class EventList extends React.Component {
           onPress={() => this.updateReminder(event.id, 'complete')}
         >
           <Icon
+            style={{ textAlign: 'center' }}
             key={event.id}
             ref={'checkIcon' + event.id}
             name={icon.name}
             color={icon.color}
-            size={21}
+            size={28}
           />
         </TouchableOpacity>
         <Text style={styles.eventTitleText}>{event.title}</Text>
@@ -128,7 +129,7 @@ class EventList extends React.Component {
     );
   }
 
-  renderContent(event, index, isActive) {
+  renderContent(event) {
     const startTime = new Date(event.time);
     let day;
     if (startTime.toDateString() === new Date().toDateString()) {

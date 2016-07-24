@@ -1,5 +1,5 @@
 import { connect } from 'react-redux';
-import NavigationRoot from '../components/NavRoot';
+import NavRoot from '../components/NavRoot';
 import { push, pop, reset } from '../actions/navAction';
 
 function mapStateToProps(state) {
@@ -15,7 +15,7 @@ export default connect(
     popRoute: () => pop(),
     resetRoute: () => reset(),
   }
-)(NavigationRoot);
+)(NavRoot);
 
 // function mapDispatchToProps (dispatch) {
 //   return {

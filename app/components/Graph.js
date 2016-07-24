@@ -45,7 +45,7 @@ const styles = StyleSheet.create({
     color: '#0099CC',
   },
   chart: {
-    width: 400,
+    width: Dimensions.get('window').width - 5,
     height: 200,
     marginTop: 2,
   },
@@ -82,7 +82,6 @@ class Graph extends React.Component {
 
   constructor(props) {
     super(props);
-
     this.today = new Date();
     this.oneWeekAgo = new Date();
     this.oneWeekAgo.setDate(this.oneWeekAgo.getDate() - 7);
@@ -100,7 +99,7 @@ class Graph extends React.Component {
       day: {
         label: this.lastSevenDays[0].label,
         key: this.lastSevenDays[0].key,
-        date: this.lastSevenDays[0].date,
+        date: new Date(this.lastSevenDays[0].date),
       },
     };
     this.handleChangeDay = this.handleChangeDay.bind(this);
@@ -115,35 +114,34 @@ class Graph extends React.Component {
 
   componentWillReceiveProps(nextProps) {
     if (this.props.dataReducer.isFetching === true && nextProps.dataReducer.isFetching === false) {
-      if (nextProps.dataReducer.temperatures.length !==
-        this.props.dataReducer.temperatures.length) {
-        const chartData = nextProps.dataReducer.temperatures.map((temp) =>
-          [temp.createdAt, temp.temperature]);
+      const chartData = nextProps.dataReducer.temperatures.map((temp) =>
+        [temp.createdAt, temp.temperature]);
 
-        this.lastWeekData = chartData.filter((t) => {
-          const date = new Date(t[0]);
-          return date.getTime() > this.oneWeekAgo.getTime()
-            && date.getTime() <= this.today.getTime();
-        });
-        this.setState({
-          mountedAndFetched: true,
-          data: chartData,
-          lessData: chartData,
-          max: chartData.length,
-          min: 0,
-        });
-      } else if (nextProps.dataReducer.limitedTemperatures.length !==
-        this.props.dataReducer.limitedTemperatures.length) {
-        let dayData = nextProps.dataReducer.limitedTemperatures.map((temp) =>
-          [temp.createdAt, temp.temperature]);
+      this.lastWeekData = chartData.filter((t) => {
+        const date = new Date(t[0]);
+        return date.getTime() > this.oneWeekAgo.getTime()
+          && date.getTime() <= this.today.getTime();
+      });
+      this.setState({
+        mountedAndFetched: true,
+        data: chartData,
+        lessData: chartData,
+        max: chartData.length,
+        min: 0,
+      });
+    }
+    if (this.props.dataReducer.isFetchingLimited === true &&
+        nextProps.dataReducer.isFetchingLimited === false) {
+      let dayData = nextProps.dataReducer.limitedTemperatures.map((temp) =>
+        [temp.createdAt, temp.temperature]);
 
-        if (dayData.length < 1) {
-          dayData = [[new Date(), 0]];
-        }
-        this.setState({ dayData });
+      if (dayData.length < 1) {
+        dayData = [[new Date(), 0]];
       }
+      this.setState({ dayData });
     }
   }
+
 
   getLastDays() {
     const today = new Date();

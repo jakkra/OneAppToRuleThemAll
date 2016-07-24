@@ -12,6 +12,7 @@ const initialState = {
     key: 'login',
     title: 'Login',
   }],
+  passProps: null,
 };
 
 function navigationState(state = initialState, action) {

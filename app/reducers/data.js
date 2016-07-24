@@ -12,6 +12,7 @@ export const initialState = {
   temperatures: [],
   error: false,
   isFetching: false,
+  isFetchingLimited: false,
   limitedTemperatures: [],
 };
 
@@ -36,18 +37,18 @@ export default function data(state = initialState, action) {
     case FETCH_LIMIT_TEMPERATURE_REQUEST:
       return { ...state,
         limitedTemperatures: [],
-        isFetching: true,
+        isFetchingLimited: true,
         error: false,
         };
     case FETCH_LIMIT_TEMPERATURE_SUCCESS:
       return { ...state,
         limitedTemperatures: action.payload.temperatures,
-        isFetching: false,
+        isFetchingLimited: false,
         error: false,
         };
     case FETCH_LIMIT_TEMPERATURE_FAILURE:
       return { ...state,
-        isFetching: false,
+        isFetchingLimited: false,
         error: true,
         };
     default:
