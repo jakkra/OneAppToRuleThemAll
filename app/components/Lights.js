@@ -7,7 +7,6 @@ import {
   ScrollView,
   Dimensions,
   Text,
-  TouchableOpacity,
   InteractionManager,
 } from 'react-native';
 
@@ -57,7 +56,7 @@ const styles = StyleSheet.create({
   },
   scrollView: {
     flex: 1,
-    marginTop: 20,
+    marginTop: 0,
     flexDirection: 'column',
   },
   listRow: {
@@ -131,34 +130,36 @@ class Lights extends React.Component {
 
   componentWillReceiveProps(nextProps) {
     if (this.props.lightReducer.isFetching === true &&
-      nextProps.lightReducer.isFetching === false) {
-      // stop loading
+      nextProps.lightReducer.isFetching === false &&
+      this.props.lightReducer.updatingInfo === false) {
+      // Did change light state
+      this.props.fetchHueLighsInfo(this.props.loginReducer.accessToken);
     } else if (this.props.lightReducer.isFetching === false &&
       nextProps.lightReducer.isFetching === true) {
       // start loading
     }
-    if (this.props.lightReducer.info === null &&
-      nextProps.lightReducer.info !== null) {
-      const lights = Object.keys(nextProps.lightReducer.info.lights).map((key, index) => {
+    if (this.props.lightReducer.updatingInfo === true &&
+      nextProps.lightReducer.updatingInfo === false) {
+      const lights = Object.keys(nextProps.lightReducer.info.lights).map((key) => {
         const light = nextProps.lightReducer.info.lights[key];
         light.key = key;
         return light;
-      })
-      const groups = Object.keys(nextProps.lightReducer.info.groups).map((key, index) => {
-        const group =  nextProps.lightReducer.info.groups[key];
+      });
+      const groups = Object.keys(nextProps.lightReducer.info.groups).map((key) => {
+        const group = nextProps.lightReducer.info.groups[key];
         group.key = key;
         return group;
-      }) 
+      });
 
       this.setState({
-        lights: lights,
-        groups: groups,
+        lights,
+        groups,
       });
     }
   }
 
   changeHueState(hue, params) {
-    if (hue.type === 'ROOM ') {
+    if (hue.type === 'Room') {
       this.props.changeGroupState(
         this.props.loginReducer.accessToken,
         hue.key,
@@ -179,10 +180,10 @@ class Lights extends React.Component {
       <MKSlider
         min={0}
         max={254}
-        value={this.state.brightness}
+        value={127}
         style={styles.slider}
         ref="brightnessSlider"
-        onConfirm={(val) => this.changeHueState(light, { on: true, bri: val })}
+        onConfirm={(val) => this.changeHueState(light, { on: true, bri: Math.round(val) })}
       />
     );
   }
@@ -198,14 +199,15 @@ class Lights extends React.Component {
             color={(light.state.on === true) ? MKColor.Yellow : MKColor.Grey} size={40}
           />
           <Text style={styles.lampText}>{light.name}</Text>
-          <MKSwitch style={styles.switch}
+          <MKSwitch
+            style={styles.switch}
             checked={light.state.on}
-            onColor='rgba(255, 152, 0, 0.3)'
+            onColor="rgba(255, 152, 0, 0.3)"
             thumbOnColor={MKColor.Yellow}
-            thumbOffColor='#0099CC'
-            rippleColor='rgba(255, 152 ,0 , 0.2)'
+            thumbOffColor="#0099CC"
+            rippleColor="rgba(255, 152 ,0 , 0.2)"
             onCheckedChange={(val) => this.changeHueState(light, { on: val.checked })}
-              />
+          />
         </View>
       );
     }
@@ -234,12 +236,13 @@ class Lights extends React.Component {
             size={29}
           />
           <Text style={styles.lampText}>{group.name}</Text>
-          <MKSwitch style={styles.switch}
+          <MKSwitch
+            style={styles.switch}
             checked={group.state.all_on}
-            onColor='rgba(255, 152, 0, 0.3)'
+            onColor="rgba(255, 152, 0, 0.3)"
             thumbOnColor={MKColor.Yellow}
-            thumbOffColor='#0099CC'
-            rippleColor='rgba(255, 152 ,0 , 0.2)'
+            thumbOffColor="#0099CC"
+            rippleColor="rgba(255, 152 ,0 , 0.2)"
             onCheckedChange={(val) => this.changeHueState(group, { on: val.checked })}
           />
         </View>
@@ -272,11 +275,11 @@ class Lights extends React.Component {
       return (
         <View style={styles.container}>
           <View style={styles.header}>
-          <Text style={styles.headerText}>Let there be light!</Text>
-        </View>
-        <MKProgress.Indeterminate
-          style={styles.progress}
-        />
+            <Text style={styles.headerText}>Let there be light!</Text>
+          </View>
+          <MKProgress.Indeterminate
+            style={styles.progress}
+          />
         </View>
       );
     }

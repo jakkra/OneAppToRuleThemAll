@@ -16,7 +16,7 @@ import {
 } from 'react-native-material-kit';
 
 import { connect } from 'react-redux';
-import { fetchTemperatures } from '../actions/data';
+import { fetchTemperatures, fetchTemperaturesLimit } from '../actions/data';
 import { getDayName, toHourMinutes, toDateMonth } from '../util/DateUtils';
 
 import Chart from './Charts/Chart';
@@ -46,7 +46,7 @@ const styles = StyleSheet.create({
   },
   chart: {
     width: 400,
-    height: 250,
+    height: 200,
     marginTop: 2,
   },
   picker: {
@@ -75,6 +75,7 @@ class Graph extends React.Component {
   static propTypes = {
     handleNavigate: React.PropTypes.func.isRequired,
     fetchTemperatures: React.PropTypes.func.isRequired,
+    fetchTemperaturesLimit: React.PropTypes.func.isRequired,
     loginReducer: React.PropTypes.object.isRequired,
     dataReducer: React.PropTypes.object.isRequired,
   };
@@ -114,7 +115,8 @@ class Graph extends React.Component {
 
   componentWillReceiveProps(nextProps) {
     if (this.props.dataReducer.isFetching === true && nextProps.dataReducer.isFetching === false) {
-      if (nextProps.dataReducer.temperatures.length > 0) {
+      if (nextProps.dataReducer.temperatures.length !==
+        this.props.dataReducer.temperatures.length) {
         const chartData = nextProps.dataReducer.temperatures.map((temp) =>
           [temp.createdAt, temp.temperature]);
 
@@ -123,28 +125,29 @@ class Graph extends React.Component {
           return date.getTime() > this.oneWeekAgo.getTime()
             && date.getTime() <= this.today.getTime();
         });
-        let selectedDayData = this.lastWeekData.filter((t) => {
-          const date = new Date(t[0]);
-          return date.toDateString() === this.state.day.date.toDateString();
-        });
-        if (selectedDayData.length < 1) {
-          selectedDayData = [[new Date(), 0]];
-        }
         this.setState({
           mountedAndFetched: true,
           data: chartData,
           lessData: chartData,
-          dayData: selectedDayData,
           max: chartData.length,
           min: 0,
         });
+      } else if (nextProps.dataReducer.limitedTemperatures.length !==
+        this.props.dataReducer.limitedTemperatures.length) {
+        let dayData = nextProps.dataReducer.limitedTemperatures.map((temp) =>
+          [temp.createdAt, temp.temperature]);
+
+        if (dayData.length < 1) {
+          dayData = [[new Date(), 0]];
+        }
+        this.setState({ dayData });
       }
     }
   }
 
   getLastDays() {
     const today = new Date();
-    const initialDayNbr = today.getDay();
+    const initialDayNbr = today.getDate();
     const lastSevenDays = [];
     let dayName;
     for (let i = initialDayNbr; i < 7 + initialDayNbr; i++) {
@@ -162,7 +165,7 @@ class Graph extends React.Component {
   }
 
   handleChangeDay(val, index) {
-    let selectedDayData = this.lastWeekData.filter((t) => {
+    /* let selectedDayData = this.lastWeekData.filter((t) => {
       const date = new Date(t[0]);
       return date.toDateString() === this.lastSevenDays[index].date.toDateString();
     });
@@ -172,7 +175,20 @@ class Graph extends React.Component {
     this.setState({
       day: this.lastSevenDays[index],
       dayData: selectedDayData,
+    }); */
+    this.setState({
+      day: this.lastSevenDays[index],
     });
+    const date = this.lastSevenDays[index].date;
+    date.setHours(23);
+    date.setMinutes(59);
+    date.setSeconds(59);
+    this.props.fetchTemperaturesLimit(this.props.loginReducer.accessToken,
+      date.toUTCString(),
+      'days',
+      1,
+      360
+    );
   }
 
   renderXLabel(val) {
@@ -271,7 +287,8 @@ class Graph extends React.Component {
           axisLabelColor="darkgrey"
           gridLineWidth={0.2}
           type="line"
-          showDataPoint={false}
+          showDataPoint={true}
+
           yAxisWidth={40}
           xAxisTransform={(val) => toHourMinutes(new Date(val))}
           yAxisTransform={(d) => d + '°C'}
@@ -308,6 +325,7 @@ function mapStateToProps(state) {
 function mapDispatchToProps(dispatch) {
   return {
     fetchTemperatures: (...args) => { dispatch(fetchTemperatures(...args)); },
+    fetchTemperaturesLimit: (...args) => { dispatch(fetchTemperaturesLimit(...args)); },
   };
 }
 

@@ -7,7 +7,7 @@ import {
 } from 'react-native';
 
 import Accordion from 'react-native-collapsible/Accordion';
-import { getMonthName } from '../util/DateUtils';
+import { getMonthName, toHourMinutes } from '../util/DateUtils';
 import { createAnimatableComponent, View } from 'react-native-animatable';
 import ReminderActions from './ReminderActions';
 
@@ -144,7 +144,7 @@ class EventList extends React.Component {
             style={{ fontSize: 15, fontWeight: 'bold', color: 'lightgray' }}
           >{day + ' | '}</Text>
           <Text style={{ fontSize: 15, color: 'lightgray' }} >
-          {startTime.getHours() + ':' + startTime.getMinutes()}
+          {toHourMinutes(startTime)}
           </Text>
         </View>
         <View style={styles.row}>

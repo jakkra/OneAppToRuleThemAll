@@ -12,6 +12,7 @@ export const initialState = {
   info: null,
   error: false,
   isFetching: false,
+  updatingInfo: false,
 };
 
 export default function data(state = initialState, action) {
@@ -20,17 +21,20 @@ export default function data(state = initialState, action) {
       return { ...state,
         isFetching: true,
         error: false,
+        updatingInfo: true,
         };
     case FETCH_LIGHTS_INFO_SUCCESS:
       return { ...state,
         info: action.payload,
         isFetching: false,
         error: false,
+        updatingInfo: false,
         };
     case FETCH_LIGHTS_INFO_FAILURE:
       return { ...state,
         isFetching: false,
         error: true,
+        updatingInfo: false,
         };
     case SEND_LIGHT_CHANGE_REQUEST:
       return { ...state,

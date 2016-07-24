@@ -104,18 +104,19 @@ function sendLightChange(dispatch, token, params) {
 }
 
 export function changeLightState(token, lightId, params) {
-  params.url = '/api/0/lights/' + lightId + '/state';
+  const p = params;
+  p.url = '/api/0/lights/' + lightId + '/state';
   return (dispatch) => {
     dispatch(sendLightChangeRequest());
     sendLightChange(dispatch, token, params);
   };
 }
 
-export function changeGroupState(token, groupId, state) {
-  params.url = '/api/0/lights/' + lightId + '/state';
+export function changeGroupState(token, groupId, params) {
+  const p = params;
+  p.url = '/api/0/groups/' + groupId + '/action';
   return (dispatch) => {
     dispatch(sendLightChangeRequest());
     sendLightChange(dispatch, token, params);
   };
 }
-
