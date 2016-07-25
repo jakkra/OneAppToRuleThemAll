@@ -124,8 +124,8 @@ class Login extends React.Component {
   }
 
   componentWillReceiveProps(nextProps) {
-    if (nextProps.loginReducer.accessToken !== null
-      && this.props.loginReducer.accessToken === null) {
+    if (nextProps.loginReducer.isLoggingIn === false
+      && this.props.loginReducer.isLoggingIn === true) {
       this.pushAfterSuccesLogin();
     } else if (nextProps.loginReducer.error === true &&
       this.props.loginReducer.error === false) {

@@ -86,7 +86,7 @@ export default class SpinningIcon extends React.Component {
       this.state.spinValue,
       {
         toValue: 1,
-        duration: 4000,
+        duration: 1000,
         easing: Easing.linear,
       }
     ).start(endState => {
