@@ -2,7 +2,6 @@ import React from 'react';
 
 import ReactNative, {
   StyleSheet,
-  ListView,
   View,
   Text,
   RefreshControl,
@@ -110,15 +109,13 @@ class Home extends React.Component {
 
   constructor(props) {
     super(props);
-    this.events = [];
-    this.ds = new ListView.DataSource({ rowHasChanged: (r1, r2) => r1 !== r2 });
     this.state = {
-      dataSource: this.ds.cloneWithRows([]),
       createReminder: false,
       reminderDay: null,
       reminderText: '',
       reminderHour: 0,
       reminderMinute: 0,
+      events: [],
     };
     this.renderDayRows = this.renderDayRows.bind(this);
     this.onRefresh = this.onRefresh.bind(this);
@@ -152,11 +149,8 @@ class Home extends React.Component {
     BackAndroid.removeEventListener('hardwareBackPress', this.handleBackAction);
   }
 
-  onEventFetchSuccess(events) {
-    this.events = events;
-    this.setState({
-      dataSource: this.ds.cloneWithRows(events),
-    });
+  onEventFetchSuccess(fetchedEvents) {
+    this.setState({ events: fetchedEvents });
   }
 
   onRefresh() {
@@ -164,7 +158,6 @@ class Home extends React.Component {
   }
 
   onPressAdd(key, day) {
-    // this.refs[key].jello();
     this.refs.scrollReminders.fadeOut({ duration: 300 });
     let date = null;
     if (day === 'TODAY') {
@@ -253,7 +246,7 @@ class Home extends React.Component {
       );
     }
     function rc({ key, day }) {
-      const filteredEvents = this.events.filter((event) => {
+      const filteredEvents = this.state.events.filter((event) => {
         const today = new Date();
         const tomorrow = new Date(new Date().getTime() + 24 * 60 * 60 * 1000);
         if (event.deleted === true) {

@@ -108,7 +108,6 @@ export function fetchTemperatures(token) {
   };
 }
 function startFetchLimitedTemperatures(dispatch, token, endDate, unit, count, limit) {
-  console.log('fetching temps');
   let url = config.serverURL + '/api/temperature/?token=' + token;
   if (endDate) url = url + '&endDate=' + endDate;
   if (unit) url = url + '&unit=' + unit;
@@ -120,7 +119,6 @@ function startFetchLimitedTemperatures(dispatch, token, endDate, unit, count, li
   .then(response => response.json())
   .then(json => {
     if (json.success === true) {
-      console.log('did fetch limit', json);
       dispatch(fetchLimitTemperatureSuccess(json));
     } else {
       dispatch(fetchLimitTemperatureFailure(json));
@@ -146,7 +144,6 @@ function startFetchLogs(dispatch, token) {
   .then(response => response.json())
   .then(json => {
     if (json.success === true) {
-      console.log(json);
       dispatch(fetchLogsSuccess(json));
     } else {
       dispatch(fetchLogsFailure(json));

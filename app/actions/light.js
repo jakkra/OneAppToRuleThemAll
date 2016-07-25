@@ -93,7 +93,6 @@ function sendLightChange(dispatch, token, params) {
   .then(response => checkStatus(response))
   .then(response => response.json())
   .then(json => {
-    console.log(json);
     if (json.success === true) {
       dispatch(sendLightChangeSuccess(json));
     } else {

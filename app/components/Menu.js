@@ -23,7 +23,7 @@ import IcIO from 'react-native-vector-icons/Ionicons';
 
 const IconFA = createAnimatableComponent(IcFA);
 const IconIO = createAnimatableComponent(IcIO);
-
+import GeoFencing from 'react-native-geo-fencing';
 
 const styles = StyleSheet.create({
   container: {
@@ -72,7 +72,6 @@ export default class Menu extends React.Component {
     handleNavigate: React.PropTypes.func.isRequired,
     goBack: React.PropTypes.func.isRequired,
     loginReducer: React.PropTypes.object.isRequired,
-
   };
 
   constructor(props) {
@@ -84,6 +83,15 @@ export default class Menu extends React.Component {
     this.openLogs = this.openLogs.bind(this);
     this.sendDeviceTokenToServer = this.sendDeviceTokenToServer.bind(this);
     this.registerToPushNotifications = this.registerToPushNotifications.bind(this);
+
+    this.polygon = [
+      { lat: 55.602543, lng: 13.021959 },
+      { lat: 55.605344, lng: 13.024725 },
+      { lat: 55.606650, lng: 13.028760 },
+      { lat: 55.605065, lng: 13.032928 },
+      { lat: 55.599466, lng: 13.033148 },
+      { lat: 55.602543, lng: 13.021959 },
+    ];
   }
 
   componentDidMount() {
@@ -104,12 +112,11 @@ export default class Menu extends React.Component {
     })
     .then(response => response.json())
     .then(json => {
-      if (json.success === true) {
-        ToastAndroid.show('Successfully send deviceToken', ToastAndroid.SHORT);
-      } else {
+      if (json.success === false) {
         ToastAndroid.show('Failed to send deviceToken', ToastAndroid.SHORT);
       }
-    });
+    })
+    .catch(() => ToastAndroid.show('Failed to send deviceToken', ToastAndroid.SHORT));
   }
 
   registerToPushNotifications() {
@@ -122,7 +129,6 @@ export default class Menu extends React.Component {
   }
 
   handleNotification(notification) {
-    ToastAndroid.show('Notification ' + notification.title, ToastAndroid.SHORT);
     if (notification.userInteraction === false) {
       let reminder;
       if (notification.reminder !== undefined) {
@@ -131,27 +137,36 @@ export default class Menu extends React.Component {
           title: 'Reminder',
           autoCancel: true,
           largeIcon: 'ic_launcher',
-          smallIcon: 'ic_notification',
           subText: 'Don\'t forget!',
           color: 'red', // (optional) default: system default
           message: reminder.title,
         });
       } else if (notification.type === 'surveillance') {
-        PushNotification.localNotification({
-          title: 'Warning',
-          tag: 'warning',
-          autoCancel: true,
-          largeIcon: 'ic_launcher',
-          smallIcon: 'ic_notification',
-          color: 'blue', // (optional) default: system default
-          message: 'Movement detected at home!',
-        });
+        navigator.geolocation.getCurrentPosition(
+        (position) => {
+          const point = {
+            lat: position.coords.latitude,
+            lng: position.coords.longitude,
+          };
+
+          GeoFencing.containsLocation(point, this.polygon)
+            .catch(() => {
+              PushNotification.localNotification({
+                title: 'Warning',
+                tag: 'warning',
+                autoCancel: true,
+                largeIcon: 'ic_launcher',
+                message: 'Movement detected at home!',
+              });
+            });
+        },
+        (error) => console.log(error),
+        { enableHighAccuracy: true, timeout: 10000 }
+      );
       }
     } else { // TODO Wrong, still need to check type here
-      console.log('Pressed notification', notification);
       if (notification.tag === 'warning') {
-        console.log('warning');
-        this.openReminders();
+        this.openLogs();
       }
     }
   }

@@ -6,7 +6,7 @@ import {
   View,
   Dimensions,
   Text,
-  TouchableHighlight,
+  TouchableOpacity,
   InteractionManager,
   ListView,
   ToastAndroid,
@@ -102,8 +102,8 @@ export default class Surveillance extends React.Component {
     InteractionManager.runAfterInteractions(() => {
       fetch(config.serverURL + '/api/user/?token=' + this.props.loginReducer.accessToken)
       .then((response) => response.json())
-      .then((user) => { console.log(user); this.setState({ atHome: user.atHome }); })
-      .catch((error) => console.log(error));
+      .then((user) => this.setState({ atHome: user.atHome }))
+      .catch(() => ToastAndroid.show('error getting user location', ToastAndroid.SHORT));
       this.props.fetchLogs(this.props.loginReducer.accessToken);
     });
     // ToastAndroid.show('Error getting location status', ToastAndroid.SHORT)
@@ -111,7 +111,6 @@ export default class Surveillance extends React.Component {
 
 
   componentWillReceiveProps(nextProps) {
-    console.log(nextProps);
     if (this.props.dataReducer.isFetchingLogs === true &&
       nextProps.dataReducer.isFetchingLogs === false) {
       this.setState({
@@ -180,15 +179,15 @@ export default class Surveillance extends React.Component {
           style={{ flex: 1 }}
           renderRow={this.renderLogRow}
         />
-        <TouchableHighlight
+        <TouchableOpacity
           style={styles.button}
-          underlayColor={'white'}
+          activeOpacity={0.5}
           onPress={this.changeLocation}
         >
           <Text style={styles.buttonText}>
             {this.state.atHome === true ? 'Leave home' : 'Teleport me home'}
           </Text>
-        </TouchableHighlight>
+        </TouchableOpacity>
       </View>
     );
   }

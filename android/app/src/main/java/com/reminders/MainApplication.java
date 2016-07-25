@@ -14,6 +14,7 @@ import com.oblador.vectoricons.VectorIconsPackage;
 
 import com.dieam.reactnativepushnotification.ReactNativePushNotificationPackage;  // <--- Import Package
 import android.content.Intent; // <--- Import Intent
+import com.surialabs.rn.geofencing.GeoFencingPackage;// <--
 
 
 
@@ -38,7 +39,8 @@ public class MainApplication extends Application implements ReactApplication {
           new MainReactPackage(),
           new ReactMaterialKitPackage(),
           new VectorIconsPackage(),
-          mReactNativePushNotificationPackage
+          mReactNativePushNotificationPackage,
+          new GeoFencingPackage()
       );
     }
   };
