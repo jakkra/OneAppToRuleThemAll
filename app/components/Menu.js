@@ -8,6 +8,7 @@ import {
   Text,
   TouchableOpacity,
   ToastAndroid,
+  InteractionManager,
 } from 'react-native';
 
 import { connect } from 'react-redux';
@@ -95,7 +96,9 @@ export default class Menu extends React.Component {
   }
 
   componentDidMount() {
-    this.registerToPushNotifications();
+    InteractionManager.runAfterInteractions(() => {
+      this.registerToPushNotifications();
+    });
   }
 
   sendDeviceTokenToServer(deviceToken) {
