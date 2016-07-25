@@ -81,6 +81,7 @@ export default class Menu extends React.Component {
     this.openGraph = this.openGraph.bind(this);
     this.logOut = this.logOut.bind(this);
     this.openLights = this.openLights.bind(this);
+    this.openLogs = this.openLogs.bind(this);
     this.sendDeviceTokenToServer = this.sendDeviceTokenToServer.bind(this);
     this.registerToPushNotifications = this.registerToPushNotifications.bind(this);
   }
@@ -121,6 +122,7 @@ export default class Menu extends React.Component {
   }
 
   handleNotification(notification) {
+    ToastAndroid.show('Notification ' + notification.title, ToastAndroid.SHORT);
     if (notification.userInteraction === false) {
       let reminder;
       if (notification.reminder !== undefined) {
@@ -186,6 +188,17 @@ export default class Menu extends React.Component {
     this.props.handleNavigate(route);
   }
 
+  openLogs() {
+    const route = {
+      type: 'push',
+      route: {
+        key: 'surveillance',
+        title: 'Surveillance',
+      },
+    };
+    this.props.handleNavigate(route);
+  }
+
   logOut() {
     const route = {
       type: 'reset',
@@ -222,7 +235,7 @@ export default class Menu extends React.Component {
             >
               <IconFA ref="reminderButton" name="lightbulb-o" color="#0099CC" size={60} />
             </TouchableOpacity>
-            <TouchableOpacity onPress={this.openGraph} style={styles.rowElement}>
+            <TouchableOpacity onPress={this.openLogs} style={styles.rowElement}>
               <IconFA ref="tempGraphButton" name="user-secret" color="#0099CC" size={60} />
             </TouchableOpacity>
           </View>

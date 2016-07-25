@@ -9,6 +9,7 @@ export const CREATE_USER_FAILURE = 'CREATE_USER_FAILURE';
 export const ACCESS_TOKEN_LOGIN = 'ACCESS_TOKEN_LOGIN';
 
 import config from '../util/config';
+
 export function loginRequest() {
   return {
     type: LOGIN_REQUEST,

@@ -4,6 +4,7 @@ import Login from './Login';
 import Graph from './Graph';
 import Menu from './Menu';
 import Lights from './Lights';
+import Surveillance from './Surveillance';
 
 import {
   BackAndroid,
@@ -73,6 +74,8 @@ class NavRoot extends Component {
       return <Menu goBack={this.handleBackAction} handleNavigate={this.handleNavigate} />;
     } else if (scene.key === prefix + 'lights') {
       return <Lights goBack={this.handleBackAction} handleNavigate={this.handleNavigate} />;
+    } else if (scene.key === prefix + 'surveillance') {
+      return <Surveillance goBack={this.handleBackAction} handleNavigate={this.handleNavigate} />;
     }
 
     return null;

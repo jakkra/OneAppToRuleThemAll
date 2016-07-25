@@ -6,6 +6,9 @@ import {
   FETCH_LIMIT_TEMPERATURE_REQUEST,
   FETCH_LIMIT_TEMPERATURE_SUCCESS,
   FETCH_LIMIT_TEMPERATURE_FAILURE,
+  FETCH_LOGS_REQUEST,
+  FETCH_LOGS_SUCCESS,
+  FETCH_LOGS_FAILURE,
 } from '../actions/data';
 
 export const initialState = {
@@ -14,6 +17,8 @@ export const initialState = {
   isFetching: false,
   isFetchingLimited: false,
   limitedTemperatures: [],
+  logs: [],
+  isFetchingLogs: false,
 };
 
 export default function data(state = initialState, action) {
@@ -49,6 +54,22 @@ export default function data(state = initialState, action) {
     case FETCH_LIMIT_TEMPERATURE_FAILURE:
       return { ...state,
         isFetchingLimited: false,
+        error: true,
+        };
+    case FETCH_LOGS_REQUEST:
+      return { ...state,
+        isFetchingLogs: true,
+        error: false,
+        };
+    case FETCH_LOGS_SUCCESS:
+      return { ...state,
+        logs: action.payload.logs,
+        isFetchingLogs: false,
+        error: false,
+        };
+    case FETCH_LOGS_FAILURE:
+      return { ...state,
+        isFetchingLogs: false,
         error: true,
         };
     default:

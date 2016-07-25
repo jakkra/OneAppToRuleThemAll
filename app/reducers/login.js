@@ -16,6 +16,7 @@ export const initialState = {
   accessToken: null,
   payload: null,
   email: 'ijakkra@gmail.com',
+  isAtHome: false,
 };
 
 
@@ -48,6 +49,7 @@ export default function reminders(state = initialState, action) {
         isCreatingUser: false,
         error: false,
         payload: action.payload,
+				isAtHome: action.payload.isAtHome,
         };
     case CREATE_USER_FAILURE:
       return { ...state,

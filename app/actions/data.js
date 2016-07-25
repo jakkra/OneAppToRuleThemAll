@@ -6,6 +6,10 @@ export const FETCH_LIMIT_TEMPERATURE_REQUEST = 'FETCH_LIMIT_TEMPERATURE_REQUEST'
 export const FETCH_LIMIT_TEMPERATURE_SUCCESS = 'FETCH_LIMIT_TEMPERATURE_SUCCESS';
 export const FETCH_LIMIT_TEMPERATURE_FAILURE = 'FETCH_LIMIT_TEMPERATURE_FAILURE';
 
+export const FETCH_LOGS_REQUEST = 'FETCH_LOGS_REQUEST';
+export const FETCH_LOGS_SUCCESS = 'FETCH_LOGS_SUCCESS';
+export const FETCH_LOGS_FAILURE = 'FETCH_LOGS_FAILURE';
+
 import config from '../util/config';
 
 export function fetchTemperatureRequest() {
@@ -43,6 +47,25 @@ export function fetchLimitTemperatureSuccess(temperatures) {
 export function fetchLimitTemperatureFailure() {
   return {
     type: FETCH_LIMIT_TEMPERATURE_FAILURE,
+  };
+}
+
+export function fetchLogsRequest() {
+  return {
+    type: FETCH_LOGS_REQUEST,
+  };
+}
+
+export function fetchLogsSuccess(logs) {
+  return {
+    type: FETCH_LOGS_SUCCESS,
+    payload: logs,
+  };
+}
+
+export function fetchLogsFailure() {
+  return {
+    type: FETCH_LOGS_FAILURE,
   };
 }
 
@@ -114,5 +137,31 @@ export function fetchTemperaturesLimit(token, endDate, unit, count, limit) {
   return (dispatch) => {
     dispatch(fetchLimitTemperatureRequest());
     startFetchLimitedTemperatures(dispatch, token, endDate, unit, count, limit);
+  };
+}
+
+function startFetchLogs(dispatch, token) {
+  fetch(config.serverURL + '/api/surveillance/?wasAtHome=false&token=' + token)
+  .then(response => checkStatus(response))
+  .then(response => response.json())
+  .then(json => {
+    if (json.success === true) {
+      console.log(json);
+      dispatch(fetchLogsSuccess(json));
+    } else {
+      dispatch(fetchLogsFailure(json));
+    }
+  })
+  .catch(error => dispatch(fetchLogsFailure(error)));
+}
+
+/**
+ * Fetches all Reminders
+ * @param {Number} auth to authenticate to the server
+ */
+export function fetchLogs(token) {
+  return (dispatch) => {
+    dispatch(fetchLogsRequest());
+    startFetchLogs(dispatch, token);
   };
 }
