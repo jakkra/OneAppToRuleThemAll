@@ -145,11 +145,13 @@ class Lights extends React.Component {
         light.key = key;
         return light;
       });
-      const groups = Object.keys(nextProps.lightReducer.info.groups).map((key) => {
+      let groups = Object.keys(nextProps.lightReducer.info.groups).map((key) => {
         const group = nextProps.lightReducer.info.groups[key];
         group.key = key;
         return group;
       });
+
+      groups = groups.filter((group) => group.lights.length > 0);
 
       this.setState({
         lights,
@@ -232,8 +234,8 @@ class Lights extends React.Component {
             ref="groupIcon"
             style={styles.lampIcon}
             name="group-work"
-            color={(group.state.all_on === true) ? MKColor.Yellow : MKColor.Red}
-            size={29}
+            color={(group.state.all_on === true) ? MKColor.Yellow : MKColor.Grey}
+            size={24}
           />
           <Text style={styles.lampText}>{group.name}</Text>
           <MKSwitch
