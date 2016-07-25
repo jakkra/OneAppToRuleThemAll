@@ -142,6 +142,7 @@ class Login extends React.Component {
   }
 
   handleBackAction() {
+    console.log('nope');
     if (this.state.showCreate === true) {
       this.swapUI();
       return true;

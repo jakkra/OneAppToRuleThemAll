@@ -134,7 +134,7 @@ class Home extends React.Component {
   componentWillReceiveProps(nextProps) {
     if (nextProps.remindersReducer.isFetching === false &&
       this.props.remindersReducer.isFetching === true) {
-      this.onEventFetchSuccess(nextProps.remindersReducer.events);
+      this.setState({ events: nextProps.remindersReducer.events });
     } else if (nextProps.remindersReducer.isCreatingEvent === false &&
       this.props.remindersReducer.isCreatingEvent === true) {
       ToastAndroid.show('Reminder created', ToastAndroid.SHORT);
@@ -149,23 +149,14 @@ class Home extends React.Component {
     BackAndroid.removeEventListener('hardwareBackPress', this.handleBackAction);
   }
 
-  onEventFetchSuccess(fetchedEvents) {
-    this.setState({ events: fetchedEvents });
-  }
-
   onRefresh() {
     this.props.fetchReminders(this.props.loginReducer.accessToken);
   }
 
   onPressAdd(key, day) {
     this.refs.scrollReminders.fadeOut({ duration: 300 });
-    let date = null;
-    if (day === 'TODAY') {
-      date = new Date();
-    } else if (day === 'TOMORROW') {
-      date = new Date(new Date().getTime() + (24 * 60 * 60 * 1000));
-    }
-    this.setState({ createReminder: true, reminderDay: date });
+    this.setState({ createReminder: true, reminderDay: day });
+    // Moves the cursor to a textfield, which later triggers createNewReminder when editing done
     this.refs.headerInput.focus();
   }
 
@@ -179,7 +170,9 @@ class Home extends React.Component {
   }
 
   handleBackAction() {
+    console.log('handleBackAction', this.state.createReminder);
     if (this.state.createReminder === true) {
+      console.log('handleBackAction', this.state.createReminder);
       this.handleEndCreateReminder();
       return true;
     }
@@ -193,7 +186,24 @@ class Home extends React.Component {
       minute: now.getMinutes(),
       is24Hour: true,
     };
-    let selectedYear = this.state.reminderDay;
+    let date = null;
+    const dayKey = this.state.reminderDay;
+    if (dayKey === 'TODAY') {
+      date = new Date();
+    } else if (dayKey === 'TOMORROW') {
+      date = new Date(new Date().getTime() + (24 * 60 * 60 * 1000));
+    } else if (dayKey === 'SOMEDAY') {
+      // No need to choose time
+      const event = {
+        title: this.state.reminderText,
+        reminderActive: true,
+      };
+      this.props.createReminder(event, this.props.loginReducer.accessToken);
+      this.handleEndCreateReminder();
+
+      return;
+    }
+    let selectedYear = date;
 
     if (selectedYear === null) {
       DatePickerAndroid.open()
@@ -261,6 +271,13 @@ class Home extends React.Component {
         if (day === 'UPCOMING') {
           tomorrow.setHours(24, 0, 0, 0);
           return tomorrow.getTime() < new Date(event.time).getTime();
+        }
+        if (day === 'SOMEDAY') {
+          return event.time === null;
+        }
+        if (day === 'UNFINISHED') {
+          return today.getTime() > new Date(event.time).getTime()
+          && event.completed === false && event.time !== null;
         }
         return false;
       });
