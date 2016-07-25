@@ -18,7 +18,6 @@ import Ic from 'react-native-vector-icons/FontAwesome';
 
 const Icon = createAnimatableComponent(Ic);
 
-
 const styles = StyleSheet.create({
   list: {
     flex: 1,
@@ -42,8 +41,6 @@ const styles = StyleSheet.create({
   openContainer: {
     marginBottom: 10,
     paddingLeft: 20,
-    //borderBottomWidth: 0.2,
-    //borderBottomColor: 'lightgray',
     flexDirection: 'column',
   },
   row: {
@@ -141,11 +138,11 @@ class EventList extends React.Component {
     return (
       <View style={styles.openContainer}>
         <View style={styles.row}>
-          <Text
-            style={{ fontSize: 15, fontWeight: 'bold', color: 'lightgray' }}
-          >{day + ' | '}</Text>
+          <Text style={{ fontSize: 15, fontWeight: 'bold', color: 'lightgray' }} >
+            {event.time ? day + ' | ' : ''}
+          </Text>
           <Text style={{ fontSize: 15, color: 'lightgray' }} >
-          {toHourMinutes(startTime)}
+            {event.time ? toHourMinutes(startTime) : ''}
           </Text>
         </View>
         <View style={styles.row}>

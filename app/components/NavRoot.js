@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import Home from './Home';
+import Reminders from './Reminders';
 import Login from './Login';
 import Graph from './Graph';
 import Menu from './Menu';
@@ -65,7 +65,7 @@ class NavRoot extends Component {
     const prefix = 'scene_';
     const { scene } = props;
     if (scene.key === prefix + 'home') {
-      return <Home handleNavigate={this.handleNavigate} />;
+      return <Reminders handleNavigate={this.handleNavigate} />;
     } else if (scene.key === prefix + 'login') {
       return <Login goBack={this.handleBackAction} handleNavigate={this.handleNavigate} />;
     } else if (scene.key === prefix + 'graph') {
