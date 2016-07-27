@@ -8,6 +8,8 @@ import {
   Dimensions,
   Text,
   InteractionManager,
+  TouchableOpacity,
+  PanResponder,
 } from 'react-native';
 
 import {
@@ -18,6 +20,7 @@ import {
 import { connect } from 'react-redux';
 import { fetchTemperatures, fetchTemperaturesLimit } from '../actions/data';
 import { getDayName, toHourMinutes, toDateMonth } from '../util/DateUtils';
+
 
 import Chart from './Charts/Chart';
 
@@ -88,12 +91,17 @@ class Graph extends React.Component {
     this.oneWeekAgo.setHours(0);
     this.oneWeekAgo.setMinutes(1);
     this.lastSevenDays = this.getLastDays();
-    this.lastWeekData = [];
     this.state = {
       mountedAndFetched: false,
       data: [[new Date(), 0]],
+      dataInside: [[new Date(), 0]],
+      dataOutside: [[new Date(), 0]],
+      lessData: [[new Date(), 0]],
       lessData: [[new Date(), 0]],
       dayData: [[new Date(), 0]],
+      dayDataInside: [[new Date(), 0]],
+      dayDataOutside: [[new Date(), 0]],
+      tempSource: 'inside',
       min: 0,
       max: 1,
       day: {
@@ -104,6 +112,21 @@ class Graph extends React.Component {
     };
     this.handleChangeDay = this.handleChangeDay.bind(this);
     this.renderXLabel = this.renderXLabel.bind(this);
+    this.changeTempSource = this.changeTempSource.bind(this);
+  }
+
+  componentWillMount() {
+    this.panResponder = PanResponder.create({
+      // Only respond to movements if the gesture is a horizontal swipe
+      onMoveShouldSetPanResponder: (e, gs) => {
+        return Math.abs(gs.dx) > Math.abs(gs.dy) ? true : false;
+      },
+      onPanResponderRelease: (e, gs) => {
+        if (Math.abs(gs.dx / Dimensions.get('window').width) > 0.5) {
+          this.changeTempSource();
+        }
+      }
+    });
   }
 
   componentDidMount() {
@@ -115,30 +138,63 @@ class Graph extends React.Component {
   componentWillReceiveProps(nextProps) {
     if (this.props.dataReducer.isFetching === true && nextProps.dataReducer.isFetching === false) {
       const chartData = nextProps.dataReducer.temperatures.map((temp) =>
-        [temp.createdAt, temp.temperature]);
+        [temp.createdAt, temp.temperature, temp.name]);
 
-      this.lastWeekData = chartData.filter((t) => {
-        const date = new Date(t[0]);
-        return date.getTime() > this.oneWeekAgo.getTime()
-          && date.getTime() <= this.today.getTime();
+      const chartDataInside = chartData.filter((t) => {
+        return t[2] === 'inside';
       });
+
+      const chartDataOutside = chartData.filter((t) => {
+        return t[2] === 'outside';
+      });
+
+      if (chartData.length < 1) {
+        chartData = [[new Date(), 0]];
+      }
+      if (chartDataInside.length < 1) {
+        chartDataInside = [[new Date(), 0]];
+      }
+      if (chartDataOutside.length < 1) {
+        chartDataOutside = [[new Date(), 0]];
+      }
+
       this.setState({
         mountedAndFetched: true,
-        data: chartData,
-        lessData: chartData,
-        max: chartData.length,
+        data: chartDataInside,
+        dataInside: chartDataInside,
+        dataOutside: chartDataOutside,
+        lessData: chartDataInside,
+        max: chartDataInside.length,
         min: 0,
       });
     }
     if (this.props.dataReducer.isFetchingLimited === true &&
         nextProps.dataReducer.isFetchingLimited === false) {
-      let dayData = nextProps.dataReducer.limitedTemperatures.map((temp) =>
-        [temp.createdAt, temp.temperature]);
+      let data = nextProps.dataReducer.limitedTemperatures.map((temp) =>
+        [temp.createdAt, temp.temperature, temp.name]);
 
-      if (dayData.length < 1) {
-        dayData = [[new Date(), 0]];
+      const dayDataInside = data.filter((t) => {
+        return t[2] === 'inside';
+      });
+
+      const dayDataOutside = data.filter((t) => {
+        return t[2] === 'outside';
+      });
+
+      if (data.length < 1) {
+        data = [[new Date(), 0]];
       }
-      this.setState({ dayData });
+      if (dayDataInside.length < 1) {
+        dayDataInside = [[new Date(), 0]];
+      }
+      if (dayDataOutside.length < 1) {
+        dayDataOutside = [[new Date(), 0]];
+      }
+      this.setState({
+        dayData: dayDataInside,
+        dayDataInside: dayDataInside,
+        dayDataOutside: dayDataOutside,
+      });
     }
   }
 
@@ -163,17 +219,6 @@ class Graph extends React.Component {
   }
 
   handleChangeDay(val, index) {
-    /* let selectedDayData = this.lastWeekData.filter((t) => {
-      const date = new Date(t[0]);
-      return date.toDateString() === this.lastSevenDays[index].date.toDateString();
-    });
-    if (selectedDayData.length < 1) {
-      selectedDayData = [[new Date(), 0]];
-    }
-    this.setState({
-      day: this.lastSevenDays[index],
-      dayData: selectedDayData,
-    }); */
     this.setState({
       day: this.lastSevenDays[index],
     });
@@ -187,6 +232,28 @@ class Graph extends React.Component {
       1,
       360
     );
+  }
+
+  changeTempSource() {
+    if (this.state.tempSource === 'inside') {
+      this.setState({
+        data: this.state.dataOutside,
+        lessData: this.state.dataOutside,
+        max: this.state.dataOutside.length,
+        min: 0,
+        dayData: this.state.dayDataOutside,
+        tempSource: 'outside',
+      });
+    } else {
+      this.setState({
+        data: this.state.dataInside,
+        lessData: this.state.dataInside,
+        max: this.state.dataInside.length,
+        min: 0,
+        dayData: this.state.dayDataInside,
+        tempSource: 'inside',
+      });
+    }
   }
 
   renderXLabel(val) {
@@ -204,7 +271,7 @@ class Graph extends React.Component {
       return (
         <View style={styles.container}>
           <View style={styles.header}>
-            <Text style={styles.headerText}>Temperatures at home</Text>
+            <Text style={styles.headerText}>Temperatures at home ({this.state.tempSource})</Text>
           </View>
           <MKProgress.Indeterminate
             style={styles.progress}
@@ -226,9 +293,9 @@ class Graph extends React.Component {
     }
 
     return (
-      <View style={styles.container}>
+      <View style={styles.container} {...this.panResponder.panHandlers}>
         <View style={styles.header}>
-          <Text style={styles.headerText}>Temperatures at home</Text>
+          <Text style={styles.headerText}>Temperatures at home ({this.state.tempSource})</Text>
         </View>
         <Text style={styles.graphLabel}>
             {graphLabel}
@@ -308,6 +375,7 @@ class Graph extends React.Component {
           )}
 
         </Picker>
+        <Text style={{ color:'#0099CC', fontSize: 20, alignSelf: 'center' }}>{'<- Swipe to change location ->'}</Text>
       </View>
     );
   }
