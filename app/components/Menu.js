@@ -127,24 +127,26 @@ export default class Menu extends React.Component {
       onRegister: (response) => this.sendDeviceTokenToServer(response.token),
       onNotification: (notification) => this.handleNotification(notification),
       senderID: '497309261287',
-      popInitialNotification: true,
+      popInitialNotification: false,
     });
   }
 
   handleNotification(notification) {
+    console.log(notification);
+    if (notification.foreground === true) {
+      const route = {
+        type: 'modal',
+        route: {
+          key: 'ReminderNotificationModal',
+          title: 'modal',
+        },
+        passProps: { reminder: JSON.parse(notification.reminder) },
+      };
+      this.props.handleNavigate(route);
+      return;
+    }
     if (notification.userInteraction === false) {
-      let reminder;
-      if (notification.reminder !== undefined) {
-        reminder = JSON.parse(notification.reminder);
-        PushNotification.localNotification({
-          title: 'Reminder',
-          autoCancel: true,
-          largeIcon: 'ic_launcher',
-          subText: 'Don\'t forget!',
-          color: 'red', // (optional) default: system default
-          message: reminder.title,
-        });
-      } else if (notification.type === 'surveillance') {
+      if (notification.type === 'surveillance') {
         navigator.geolocation.getCurrentPosition(
         (position) => {
           const point = {
@@ -167,8 +169,17 @@ export default class Menu extends React.Component {
         { enableHighAccuracy: true, timeout: 10000 }
       );
       }
-    } else { // TODO Wrong, still need to check type here
-      if (notification.tag === 'warning') {
+    } else {
+      if (notification.type === 'reminder') {
+        const route = {
+          type: 'modal',
+          route: {
+            key: 'ReminderNotificationModal',
+            title: 'modal',
+          },
+        };
+        this.props.handleNavigate(route);
+      } else if (notification.tag === 'warning') {
         this.openLogs();
       }
     }

@@ -170,9 +170,7 @@ class Reminders extends React.Component {
   }
 
   handleBackAction() {
-    console.log('handleBackAction', this.state.createReminder);
     if (this.state.createReminder === true) {
-      console.log('handleBackAction', this.state.createReminder);
       this.handleEndCreateReminder();
       return true;
     }

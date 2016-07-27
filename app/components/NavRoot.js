@@ -6,9 +6,12 @@ import Menu from './Menu';
 import Lights from './Lights';
 import Surveillance from './Surveillance';
 
+import ReminderNotificationModal from './ReminderNotificationModal';
+
 import {
   BackAndroid,
   NavigationExperimental,
+  View,
 } from 'react-native';
 
 const {
@@ -29,13 +32,30 @@ class NavRoot extends Component {
     this.renderScene = this.renderScene.bind(this);
     this.handleBackAction = this.handleBackAction.bind(this);
     this.handleNavigate = this.handleNavigate.bind(this);
+    this.onModalClose = this.onModalClose.bind(this);
+    this.state = {
+      modalOpen: false,
+      modal: null,
+      modalProps: null,
+    };
   }
 
   componentDidMount() {
     BackAndroid.addEventListener('hardwareBackPress', this.handleBackAction);
   }
+
   componentWillUnmount() {
     BackAndroid.removeEventListener('hardwareBackPress', this.handleBackAction);
+  }
+
+  onModalClose() {
+    this.setState({ modalOpen: false });
+  }
+
+  showModal(route, props) {
+    if (route.key === 'ReminderNotificationModal') {
+      this.setState({ modal: ReminderNotificationModal, modalOpen: true, modalProps: props });
+    }
   }
 
   handleNavigate(action) {
@@ -48,6 +68,8 @@ class NavRoot extends Component {
         return this.handleBackAction();
       case 'reset':
         return this.props.resetRoute();
+      case 'modal':
+        return this.showModal(action.route, action.passProps);
       default:
         return false;
     }
@@ -56,6 +78,10 @@ class NavRoot extends Component {
   handleBackAction() {
     if (this.props.navigation.index === 0 || this.props.navigation.index === 1) {
       return false;
+    }
+    if (this.state.modalOpen === true) {
+      this.setState({ modalOpen: false });
+      return true;
     }
     this.props.popRoute();
     return true;
@@ -82,13 +108,22 @@ class NavRoot extends Component {
   }
 
   render() {
+    const modal = this.state.modal ?
+      <this.state.modal
+        isOpen={this.state.modalOpen}
+        passProps={this.state.modalProps}
+        onClose={this.onModalClose}
+      /> : null;
     return (
-      <NavigationCardStack
-        direction="horizontal"
-        navigationState={this.props.navigation}
-        onNavigate={this.handleNavigate}
-        renderScene={this.renderScene}
-      />
+      <View style={{ flex: 1 }}>
+        <NavigationCardStack
+          direction="horizontal"
+          navigationState={this.props.navigation}
+          onNavigate={this.handleNavigate}
+          renderScene={this.renderScene}
+        />
+        {modal}
+      </View>
     );
   }
 }
