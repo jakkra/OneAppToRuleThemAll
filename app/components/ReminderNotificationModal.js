@@ -20,6 +20,8 @@ import Icon from 'react-native-vector-icons/Ionicons';
 import Modal from 'react-native-modalbox';
 import Swiper from 'react-native-swiper';
 
+import ToggleButton from './ToggleButton';
+
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -63,20 +65,11 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
-  numUnitsButtonText: {
-    fontSize: 20,
-    color: 'white',
-    fontWeight: 'bold',
-    padding: 2,
-    paddingHorizontal: 12,
-    textAlign: 'center',
-    textAlignVertical: 'center',
-  },
 });
 
-const numUnits1 = [1, 5, 10];
-const numUnits2 = [20, 30, 40];
-const numUnits3 = [60, 120];
+const numUnits1 = ['1', '5', '10'];
+const numUnits2 = ['20', '30', '40'];
+const numUnits3 = ['60', '120'];
 
 const units = ['minutes', 'hours', 'days', 'weeks'];
 
@@ -188,31 +181,23 @@ export default class ReminderNotificationModal extends React.Component {
           <View style={[styles.container, { flexDirection: 'row' }]}>
             <View style={styles.snoozeRow}>
               {numUnits1.map((num) => (
-                <TouchableOpacity key={num} style={styles.unitButton}>
-                  <Text style={styles.numUnitsButtonText}> {num}</Text>
-                </TouchableOpacity>
+                <ToggleButton key={num} text={num} style={styles.unitButton}/>
               ))}
               
             </View>
             <View style={styles.snoozeRow}>
               {numUnits2.map((num) => (
-                <TouchableOpacity key={num} style={styles.unitButton}>
-                  <Text style={styles.numUnitsButtonText}> {num}</Text>
-                </TouchableOpacity>
+                <ToggleButton key={num} text={num} style={styles.unitButton}/>
               ))}
             </View>
             <View style={styles.snoozeRow}>
               {numUnits3.map((num) => (
-                <TouchableOpacity key={num} style={styles.unitButton}>
-                  <Text style={styles.numUnitsButtonText}> {num}</Text>
-                </TouchableOpacity>
+                <ToggleButton key={num} text={num} style={styles.unitButton}/>
               ))}
             </View>
             <View style={styles.snoozeRow}>
               {units.map((name) => (
-                <TouchableOpacity key={name} style={styles.unitButton}>
-                  <Text style={styles.numUnitsButtonText}> {name}</Text>
-                </TouchableOpacity>
+                <ToggleButton key={name} text={name} style={styles.unitButton}/>
               ))}
             </View>
           </View>
