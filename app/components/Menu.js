@@ -98,6 +98,15 @@ export default class Menu extends React.Component {
   componentDidMount() {
     InteractionManager.runAfterInteractions(() => {
       this.registerToPushNotifications();
+      const route = {
+        type: 'modal',
+        route: {
+          key: 'ReminderNotificationModal',
+          title: 'modal',
+        },
+        passProps: { reminder: 'lolReminder' },
+      };
+      this.props.handleNavigate(route);
     });
   }
 

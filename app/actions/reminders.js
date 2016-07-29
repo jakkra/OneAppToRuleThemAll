@@ -164,7 +164,7 @@ function sendEditReminder(dispatch, event, token, successCallback, failureCallba
 
 /**
  * Edits a reminder with id with spcified params
- * @param {Number} auth to authenticate to the server
+ * @param {Number} token to authenticate to the server
  */
 export function editReminder(event, token) {
   return (dispatch) => {
