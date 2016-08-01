@@ -24,7 +24,6 @@ import IcIO from 'react-native-vector-icons/Ionicons';
 
 const IconFA = createAnimatableComponent(IcFA);
 const IconIO = createAnimatableComponent(IcIO);
-import GeoFencing from 'react-native-geo-fencing';
 
 const styles = StyleSheet.create({
   container: {
@@ -84,15 +83,6 @@ export default class Menu extends React.Component {
     this.openLogs = this.openLogs.bind(this);
     this.sendDeviceTokenToServer = this.sendDeviceTokenToServer.bind(this);
     this.registerToPushNotifications = this.registerToPushNotifications.bind(this);
-
-    this.polygon = [
-      { lat: 55.602543, lng: 13.021959 },
-      { lat: 55.605344, lng: 13.024725 },
-      { lat: 55.606650, lng: 13.028760 },
-      { lat: 55.605065, lng: 13.032928 },
-      { lat: 55.599466, lng: 13.033148 },
-      { lat: 55.602543, lng: 13.021959 },
-    ];
   }
 
   componentDidMount() {
@@ -143,42 +133,6 @@ export default class Menu extends React.Component {
   handleNotification(notification) {
     console.log(notification);
     if (notification.foreground === true) {
-      const route = {
-        type: 'modal',
-        route: {
-          key: 'ReminderNotificationModal',
-          title: 'modal',
-        },
-        passProps: { reminder: JSON.parse(notification.reminder) },
-      };
-      this.props.handleNavigate(route);
-      return;
-    }
-    if (notification.userInteraction === false) {
-      if (notification.type === 'surveillance') {
-        navigator.geolocation.getCurrentPosition(
-        (position) => {
-          const point = {
-            lat: position.coords.latitude,
-            lng: position.coords.longitude,
-          };
-
-          GeoFencing.containsLocation(point, this.polygon)
-            .catch(() => {
-              PushNotification.localNotification({
-                title: 'Warning',
-                tag: 'warning',
-                autoCancel: true,
-                largeIcon: 'ic_launcher',
-                message: 'Movement detected at home!',
-              });
-            });
-        },
-        (error) => console.log(error),
-        { enableHighAccuracy: true, timeout: 10000 }
-      );
-      }
-    } else {
       if (notification.type === 'reminder') {
         const route = {
           type: 'modal',
@@ -186,6 +140,34 @@ export default class Menu extends React.Component {
             key: 'ReminderNotificationModal',
             title: 'modal',
           },
+          passProps: { reminder: JSON.parse(notification.reminder) },
+        };
+        this.props.handleNavigate(route);
+        return;
+      } else if (notification.type === 'surveillance') {
+        // TODO handle alert notification press in foreground
+      }
+    }
+    if (notification.userInteraction === false) { // Received in background
+      // remove, let server handle notification building?
+      if (notification.type === 'surveillance') {
+        PushNotification.localNotification({
+          title: 'Warning',
+          tag: 'warning',
+          autoCancel: true,
+          largeIcon: 'ic_launcher',
+          message: 'Movement detected at home!',
+        });
+      }
+    } else { // Opened notification from background
+      if (notification.type === 'reminder') {
+        const route = {
+          type: 'modal',
+          route: {
+            key: 'ReminderNotificationModal',
+            title: 'modal',
+          },
+          passProps: { reminder: JSON.parse(notification.reminder) },
         };
         this.props.handleNavigate(route);
       } else if (notification.tag === 'warning') {
