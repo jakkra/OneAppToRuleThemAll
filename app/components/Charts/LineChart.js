@@ -95,9 +95,10 @@ export default class LineChart extends Component<void, any, any> {
 					<Surface width={containerWidth} height={containerHeight} />
 				</View>
 				{(() => {
+					if (!this.props.showDataPoint) return null;
 					return (
 						<Surface width={containerWidth} height={containerHeight}>
-							{this.props.showDataPoint ? dataPoints.map((d, i) => <Circle key={i} {...d} />) : null}
+							{dataPoints.map((d, i) => <Circle key={i} {...d} />)}
 						</Surface>
 					);
 				})()}
@@ -117,9 +118,9 @@ export default class LineChart extends Component<void, any, any> {
 			);
 		}
 		return (
-			<View style={{ overflow: 'hidden' }}>
+			<View>
 				<Grid {...this.props} />
-				<View style={{ height: this.props.height, backgroundColor: 'transparent' }}>
+				<View style={{ height: this.props.height }}>
 					{this._drawLine()}
 				</View>
 			</View>

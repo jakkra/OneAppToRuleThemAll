@@ -53,6 +53,7 @@ export default class Chart extends Component<void, any, any> {
 		verticalGridStep: 4,
 		xAxisHeight: 20,
 		yAxisWidth: 30,
+		yAxisUseDecimal: false,
 	};
 
 	constructor(props : any) {
@@ -83,8 +84,8 @@ export default class Chart extends Component<void, any, any> {
 			if (number > max) max = number;
 		});
 
-		min = Math.round(min);
-		max = Math.round(max);
+		min = Math.floor(min);
+		max = Math.ceil(max);
 
 		// Exit if we want tight bounds
 		if (this.props.tightBounds) {
@@ -169,6 +170,7 @@ export default class Chart extends Component<void, any, any> {
 											minVerticalBound={this.state.bounds.min}
 											containerWidth={this.state.containerWidth}
 											maxVerticalBound={this.state.bounds.max}
+											yAxisUseDecimal={this.props.yAxisUseDecimal}
 											style={{ width: this.props.yAxisWidth }}
 										/>
 									</View>
@@ -183,13 +185,14 @@ export default class Chart extends Component<void, any, any> {
 								</View>
 								{(() => {
 									return (
-										<View style={{ marginLeft: this.props.yAxisWidth - 1 }} ref="xAxis">
+										<View ref="xAxis">
 											<XAxis
 												{...this.props}
 												width={this.state.containerWidth - this.props.yAxisWidth}
 												data={this.props.data}
 												height={this.props.xAxisHeight}
 												align={axisAlign}
+												style={{ marginLeft: this.props.yAxisWidth - 1 }}
 											/>
 										</View>
 									);
@@ -226,6 +229,7 @@ Chart.propTypes = {
 	highlightColor: PropTypes.oneOfType([PropTypes.number, PropTypes.string]), // TODO
 	highlightIndices: PropTypes.arrayOf(PropTypes.number), // TODO
 	onDataPointPress: PropTypes.func,
+	yAxisUseDecimal: PropTypes.bool,
 
 	// Bar chart props
 	color: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
@@ -266,6 +270,7 @@ Chart.propTypes = {
 	style: PropTypes.any,
 	tightBounds: PropTypes.bool,
 	verticalGridStep: PropTypes.number,
+	horizontalGridStep: PropTypes.number,
 	// xAxisTitle: PropTypes.string,
 	xAxisHeight: PropTypes.number,
 	xAxisTransform: PropTypes.func,

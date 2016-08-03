@@ -8,7 +8,6 @@ import {
   Dimensions,
   Text,
   InteractionManager,
-  TouchableOpacity,
   PanResponder,
 } from 'react-native';
 
@@ -72,6 +71,25 @@ const styles = StyleSheet.create({
   },
 });
 
+const data = [
+    [0, 0],
+    [1, 1],
+    [2, 2],
+    [3, 3],
+    [4, 4],
+    [5, 5],
+    [6, 4],
+    [7, 3],
+    [8, 2],
+    [9, 1],
+    [10, 0],
+    [11, 1],
+    [12, 2],
+    [13, 3],
+    [14, 4],
+    [15, 5],
+    [16, 6],
+];
 
 class Graph extends React.Component {
 
@@ -96,7 +114,6 @@ class Graph extends React.Component {
       data: [[new Date(), 0]],
       dataInside: [[new Date(), 0]],
       dataOutside: [[new Date(), 0]],
-      lessData: [[new Date(), 0]],
       lessData: [[new Date(), 0]],
       dayData: [[new Date(), 0]],
       dayDataInside: [[new Date(), 0]],
@@ -125,7 +142,7 @@ class Graph extends React.Component {
         if (Math.abs(gs.dx / Dimensions.get('window').width) > 0.5) {
           this.changeTempSource();
         }
-      }
+      },
     });
   }
 
@@ -137,14 +154,14 @@ class Graph extends React.Component {
 
   componentWillReceiveProps(nextProps) {
     if (this.props.dataReducer.isFetching === true && nextProps.dataReducer.isFetching === false) {
-      const chartData = nextProps.dataReducer.temperatures.map((temp) =>
+      let chartData = nextProps.dataReducer.temperatures.map((temp) =>
         [temp.createdAt, temp.temperature, temp.name]);
 
-      const chartDataInside = chartData.filter((t) => {
+      let chartDataInside = chartData.filter((t) => {
         return t[2] === 'inside';
       });
 
-      const chartDataOutside = chartData.filter((t) => {
+      let chartDataOutside = chartData.filter((t) => {
         return t[2] === 'outside';
       });
 
@@ -157,6 +174,7 @@ class Graph extends React.Component {
       if (chartDataOutside.length < 1) {
         chartDataOutside = [[new Date(), 0]];
       }
+      console.log(chartDataInside);
 
       this.setState({
         mountedAndFetched: true,
@@ -173,11 +191,11 @@ class Graph extends React.Component {
       let data = nextProps.dataReducer.limitedTemperatures.map((temp) =>
         [temp.createdAt, temp.temperature, temp.name]);
 
-      const dayDataInside = data.filter((t) => {
+      let dayDataInside = data.filter((t) => {
         return t[2] === 'inside';
       });
 
-      const dayDataOutside = data.filter((t) => {
+      let dayDataOutside = data.filter((t) => {
         return t[2] === 'outside';
       });
 
@@ -192,8 +210,8 @@ class Graph extends React.Component {
       }
       this.setState({
         dayData: dayDataInside,
-        dayDataInside: dayDataInside,
-        dayDataOutside: dayDataOutside,
+        dayDataInside,
+        dayDataOutside,
       });
     }
   }
@@ -304,6 +322,7 @@ class Graph extends React.Component {
         <Chart
           style={styles.chart}
           data={this.state.lessData}
+          // data={data}
           horizontalGridStep={5}
           verticalGridStep={5}
           color="#ff69b4"
@@ -314,11 +333,12 @@ class Graph extends React.Component {
           axisLabelColor="darkgrey"
           gridLineWidth={0.2}
           type="line"
-          tightBounds={true}
+          tightBounds
           showDataPoint={false}
           yAxisWidth={40}
           xAxisTransform={this.renderXLabel}
           yAxisTransform={(d) => d + '°C'}
+          yAxisUseDecimal
         />
         <MKRangeSlider
           min={0}
@@ -352,11 +372,11 @@ class Graph extends React.Component {
           axisLabelColor="darkgrey"
           gridLineWidth={0.2}
           type="line"
-          showDataPoint={true}
-
+          showDataPoint
           yAxisWidth={40}
           xAxisTransform={(val) => toHourMinutes(new Date(val))}
           yAxisTransform={(d) => d + '°C'}
+          yAxisUseDecimal
         />
         <Picker
           selectedValue={this.state.day.key}
@@ -375,7 +395,9 @@ class Graph extends React.Component {
           )}
 
         </Picker>
-        <Text style={{ color:'#0099CC', fontSize: 20, alignSelf: 'center' }}>{'<- Swipe to change location ->'}</Text>
+        <Text style={{ color: '#0099CC', fontSize: 20, alignSelf: 'center' }}>
+          {'<- Swipe to change location ->'}
+        </Text>
       </View>
     );
   }

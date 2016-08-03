@@ -7,6 +7,7 @@ export default class Grid extends Component {
 		showGrid: PropTypes.bool,
 		data: PropTypes.array.isRequired,
 		verticalGridStep: PropTypes.number.isRequired,
+		horizontalGridStep: PropTypes.number,
 		gridLineWidth: PropTypes.number,
 		gridColor: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
 		hideHorizontalGridLines: PropTypes.bool,
@@ -26,11 +27,15 @@ export default class Grid extends Component {
 		const data = this.props.data || [];
 		const unique = uniqueValuesInDataSet(data);
 		const horizontalSteps = (unique.length < this.props.verticalGridStep) ? unique.length : this.props.verticalGridStep;
+		let horizontalGridStep = this.props.horizontalGridStep;
 
-	  const stepsBetweenVerticalLines = Math.round((data.length) / this.props.horizontalGridStep);
+		let stepsBetweenVerticalLines = horizontalGridStep ? Math.floor(data.length / horizontalGridStep) : 1;
+		if (stepsBetweenVerticalLines < 1) stepsBetweenVerticalLines = 1;
+
 		for (let i = horizontalSteps; i > 0; i--) horizontalRange.push(i);
 		for (let i = data.length - 1; i > 0; i-=stepsBetweenVerticalLines) verticalRange.push(i);
-		const containerStyle = { borderRightColor: this.props.gridColor, borderRightWidth: this.props.gridLineWidth, width: this.props.width, height: this.props.height, position: 'absolute', left: 0 };
+
+		const containerStyle = { width: this.props.width, height: this.props.height, position: 'absolute', left: 0 };
 
 		let intendedLineWidth = this.props.gridLineWidth;
 		if (this.props.gridLineWidth < 1) {
