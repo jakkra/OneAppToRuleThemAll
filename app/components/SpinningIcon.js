@@ -27,6 +27,7 @@ export default class SpinningIcon extends React.Component {
 
   static propTypes = {
     loading: React.PropTypes.array,
+    icon: React.PropTypes.string.isRequired,
   }
 
   static defaultProps = {
@@ -122,7 +123,7 @@ export default class SpinningIcon extends React.Component {
       <Animated.View style={[styles.container, { transform: [{ rotate: spin }] }]}>
         <Icon
           style={{ marginRight: 10 }}
-          name="rocket"
+          name={this.props.icon}
           color="#4D4D4D" size={90}
         />
       </Animated.View>

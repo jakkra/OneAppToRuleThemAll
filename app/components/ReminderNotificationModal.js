@@ -4,7 +4,7 @@ import React from 'react';
 import {
   StyleSheet,
   View,
-  Dimensions,
+  ToastAndroid,
   Text,
   TouchableOpacity,
 } from 'react-native';
@@ -12,8 +12,8 @@ import {
 import { connect } from 'react-redux';
 
 import { editReminder } from '../actions/reminders';
-import { toHourMinutes, toDateMonth } from '../util/DateUtils';
-import config from '../util/config';
+import SpinningIcon from './SpinningIcon';
+
 
 import Icon from 'react-native-vector-icons/Ionicons';
 
@@ -23,6 +23,14 @@ import Swiper from 'react-native-swiper';
 import ToggleButton from './ToggleButton';
 
 const styles = StyleSheet.create({
+  modal: {
+    justifyContent: 'center',
+    alignItems: 'center',
+    height: 160,
+  },
+  wrapper: {
+    flex: 1,
+  },
   container: {
     flex: 1,
     backgroundColor: 'transparent',
@@ -30,18 +38,12 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     marginBottom: 10,
-    marginHorizontal: 30,
-  },
-  modal: {
-    height: 170,
-    justifyContent: 'center',
-    alignItems: 'center',
+    marginHorizontal: 10,
   },
   row: {
     flex: 1,
     flexDirection: 'row',
     borderColor: 'lightgray',
-    marginBottom: 20,
   },
   snoozeRow: {
     flexWrap: 'wrap',
@@ -56,7 +58,10 @@ const styles = StyleSheet.create({
   },
   reminderText: {
     fontSize: 20,
-    color: '#0099CC',
+    color: 'black',
+    height: 30,
+    alignSelf: 'center',
+    justifyContent: 'center',
   },
   unitButton: {
     backgroundColor: '#0099CC',
@@ -86,20 +91,79 @@ export default class ReminderNotificationModal extends React.Component {
 
   constructor(props) {
     super(props);
-    console.log(this.props);
+    console.log('ReminderNot constructor ran');
     this.state = {
       isOpen: false,
       isDisabled: false,
       swipeToClose: true,
       numUnits: 1,
     };
+    this.numberUnits = null;
+    this.unit = null;
     this.completeReminder = this.completeReminder.bind(this);
     this.deleteReminder = this.deleteReminder.bind(this);
     this.delayReminder = this.delayReminder.bind(this);
+    this.onToggleButton = this.onToggleButton.bind(this);
+    this.handleReminder = this.handleReminder.bind(this);
   }
 
   componentWillReceiveProps(nextProps) {
-    // console.log('new props modal', nextProps);
+    if (this.props.remindersReducer.editedEvent === null
+      && nextProps.remindersReducer.editedEvent !== null) {
+      this.numberUnits = null;
+      this.unit = null;
+      this.refs.modal.close();
+    } else if (this.props.remindersReducer.error === false
+      && nextProps.remindersReducer.editedEvent === true) {
+      ToastAndroid.show('Error editing reminder', ToastAndroid.LONG);
+      this.refs.swiper.scrollBy(- 2);
+      this.numberUnits = null;
+      this.unit = null;
+    }
+  }
+
+  onToggleButton(key) {
+    if (this.isNumber(key)) {
+      this.numberUnits = key;
+    } else {
+      this.unit = key;
+    }
+    if (this.numberUnits !== null && this.unit !== null) {
+      this.refs.swiper.scrollBy(1);
+      const reminderId = this.props.passProps.reminder.id;
+      const num = parseInt(this.numberUnits, 10);
+      const snoozeTime = new Date();
+      switch (this.unit) {
+        case 'weeks':
+          snoozeTime.setDate(snoozeTime.getDate() + num * 7);
+          break;
+        case 'days':
+          snoozeTime.setDate(snoozeTime.getDate() + num);
+          break;
+        case 'hours':
+          snoozeTime.setHours(snoozeTime.getHours() + num);
+          break;
+        case 'minutes':
+          snoozeTime.setMinutes(snoozeTime.getMinutes() + num);
+          break;
+        default:
+          break;
+      }
+      this.props.editReminder({
+        id: reminderId,
+        time: snoozeTime,
+      },
+        this.props.loginReducer.accessToken
+      );
+    }
+  }
+
+  isNumber(obj) {
+    return !isNaN(parseInt(obj, 10));
+  }
+
+  handleReminder() {
+    this.refs.swiper.scrollBy(1);
   }
 
   completeReminder() {
@@ -110,7 +174,7 @@ export default class ReminderNotificationModal extends React.Component {
     },
       this.props.loginReducer.accessToken
     );
-    this.refs.modal.close();
+    this.refs.swiper.scrollBy(2);
   }
 
   deleteReminder() {
@@ -121,19 +185,11 @@ export default class ReminderNotificationModal extends React.Component {
     },
       this.props.loginReducer.accessToken
     );
-    this.refs.modal.close();
+    this.refs.swiper.scrollBy(2);
   }
 
   delayReminder() {
-    const reminderId = this.props.passProps.reminder.id;
     this.refs.swiper.scrollBy(1);
-    /* this.props.editReminder({
-      id: reminderId,
-      deleted: true,
-    },
-      this.props.loginReducer.accessToken
-    );
-    this.refs.modal.close();*/
   }
 
   render() {
@@ -145,9 +201,27 @@ export default class ReminderNotificationModal extends React.Component {
         position={'bottom'}
         ref="modal"
       >
-        <Swiper ref="swiper" style={styles.wrapper} scrollEnabled={false} showsPagination={false} horizontal={false} loop={false}>
+        <Swiper
+          ref="swiper"
+          style={styles.wrapper}
+          scrollEnabled={false}
+          showsPagination={false}
+          horizontal={false}
+          loop={false}
+        >
+          <View style={[styles.container, { flexDirection: 'row' }]}>
+            <View style={styles.row}>
+              <TouchableOpacity onPress={this.handleReminder} style={styles.rowElement}>
+                <Icon
+                  name="md-alarm"
+                  color="#0099CC"
+                  size={90}
+                />
+              </TouchableOpacity>
+              <Text style={styles.reminderText}>{this.props.passProps.reminder.title}</Text>
+            </View>
+          </View>
           <View style={[styles.container, { flexDirection: 'column' }]}>
-            <Text style={styles.reminderText}>Reminder title here</Text>
             <View style={styles.row}>
               <TouchableOpacity onPress={this.completeReminder} style={styles.rowElement}>
                 <Icon
@@ -177,29 +251,55 @@ export default class ReminderNotificationModal extends React.Component {
                 <Text style={styles.buttonText}>Delete</Text>
               </TouchableOpacity>
             </View>
+
           </View>
           <View style={[styles.container, { flexDirection: 'row' }]}>
             <View style={styles.snoozeRow}>
               {numUnits1.map((num) => (
-                <ToggleButton key={num} text={num} style={styles.unitButton}/>
+                <ToggleButton
+                  key={num}
+                  text={num}
+                  onToggle={this.onToggleButton}
+                  style={styles.unitButton}
+                />
               ))}
-              
             </View>
             <View style={styles.snoozeRow}>
               {numUnits2.map((num) => (
-                <ToggleButton key={num} text={num} style={styles.unitButton}/>
+                <ToggleButton
+                  key={num}
+                  text={num}
+                  onToggle={this.onToggleButton}
+                  style={styles.unitButton}
+                />
               ))}
             </View>
             <View style={styles.snoozeRow}>
               {numUnits3.map((num) => (
-                <ToggleButton key={num} text={num} style={styles.unitButton}/>
+                <ToggleButton
+                  key={num}
+                  text={num}
+                  onToggle={this.onToggleButton}
+                  style={styles.unitButton}
+                />
               ))}
             </View>
             <View style={styles.snoozeRow}>
               {units.map((name) => (
-                <ToggleButton key={name} text={name} style={styles.unitButton}/>
+                <ToggleButton
+                  key={name}
+                  text={name}
+                  onToggle={this.onToggleButton}
+                  style={styles.unitButton}
+                />
               ))}
             </View>
+          </View>
+          <View style={[styles.container, { flexDirection: 'row' }]}>
+            <SpinningIcon
+              icon={"spinner"}
+              loading={[true]}
+            />
           </View>
         </Swiper>
       </Modal>

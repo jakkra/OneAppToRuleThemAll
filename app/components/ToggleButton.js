@@ -11,7 +11,7 @@ import Icon from 'react-native-vector-icons/FontAwesome';
 
 
 const styles = StyleSheet.create({
-  numUnitsButtonText: {
+  textStyle: {
     fontSize: 20,
     color: 'white',
     fontWeight: 'bold',
@@ -33,10 +33,11 @@ export default class ToggleButton extends React.Component {
     toggleColor: React.PropTypes.string,
     color: React.PropTypes.string,
     key: React.PropTypes.string,
+    style: React.PropTypes.number,
   }
 
   static defaultProps = {
-    onToggle: () => {},
+    // onToggle: () => {},
     onUnToggle: () => {},
     toggleColor: '#FF3366',
     color: '#0099CC',
@@ -55,20 +56,21 @@ export default class ToggleButton extends React.Component {
 
   }
 
-  componentWillReceiveProps(nextProps) {
-      
-  }
-
-  onPress(){
+  onPress() {
+    const isToggled = this.state.toggled;
     this.setState({ toggled: !this.state.toggled });
-    this.state.toggled ? this.props.onToggle(this.props.key) : this.props.onUnToggle(this.props.key);
+    isToggled ? this.props.onUnToggle(this.props.text) : this.props.onToggle(this.props.text);
   }
 
   render() {
     const toggleColor = this.state.toggled === false ? this.props.color : this.props.toggleColor;
     return (
-      <TouchableOpacity onPress={this.onPress} {...this.props} style={[this.props.style, { backgroundColor: toggleColor }]}>
-        <Text style={styles.numUnitsButtonText}> {this.props.text}</Text>
+      <TouchableOpacity
+        onPress={this.onPress}
+        {...this.props}
+        style={[this.props.style, { backgroundColor: toggleColor }]}
+      >
+        <Text style={styles.textStyle}> {this.props.text}</Text>
       </TouchableOpacity>
     );
   }
