@@ -88,7 +88,7 @@ export default class Menu extends React.Component {
   componentDidMount() {
     InteractionManager.runAfterInteractions(() => {
       this.registerToPushNotifications();
-      const route = {
+      /* const route = {
         type: 'modal',
         route: {
           key: 'ReminderNotificationModal',
@@ -97,10 +97,14 @@ export default class Menu extends React.Component {
         passProps: { reminder: 'lolReminder' },
       };
       this.props.handleNavigate(route);
+      */
     });
   }
 
   sendDeviceTokenToServer(deviceToken) {
+    PushNotification.popInitialNotification((notification) => {
+      if (notification) { this.handleNotification(notification); }
+    });
     fetch(config.serverURL + '/api/user/device', {
       method: 'post',
       headers: {
@@ -119,7 +123,7 @@ export default class Menu extends React.Component {
       }
     })
     .catch(() => ToastAndroid.show('Failed to send deviceToken', ToastAndroid.SHORT));
-  }
+  
 
   registerToPushNotifications() {
     PushNotification.configure({
@@ -131,7 +135,6 @@ export default class Menu extends React.Component {
   }
 
   handleNotification(notification) {
-    console.log(notification);
     if (notification.foreground === true) {
       if (notification.type === 'reminder') {
         const route = {

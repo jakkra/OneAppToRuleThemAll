@@ -91,7 +91,6 @@ export default class ReminderNotificationModal extends React.Component {
 
   constructor(props) {
     super(props);
-    console.log('ReminderNot constructor ran');
     this.state = {
       isOpen: false,
       isDisabled: false,

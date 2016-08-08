@@ -48,7 +48,7 @@ const styles = StyleSheet.create({
   },
   chart: {
     width: Dimensions.get('window').width - 5,
-    height: 180,
+    height: 200,
     marginTop: 2,
   },
   picker: {
@@ -174,7 +174,6 @@ class Graph extends React.Component {
       if (chartDataOutside.length < 1) {
         chartDataOutside = [[new Date(), 0]];
       }
-      console.log(chartDataInside);
 
       this.setState({
         mountedAndFetched: true,
