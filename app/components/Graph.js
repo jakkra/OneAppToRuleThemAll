@@ -48,7 +48,7 @@ const styles = StyleSheet.create({
   },
   chart: {
     width: Dimensions.get('window').width - 5,
-    height: 200,
+    height: 180,
     marginTop: 2,
   },
   picker: {
@@ -69,27 +69,27 @@ const styles = StyleSheet.create({
   progress: {
     width: Dimensions.get('window').width,
   },
+  navigationView: {
+    alignSelf: 'center',
+    justifyContent: 'center',
+    alignItems: 'center',
+    flexDirection: 'row',
+  },
+  activeDot: {
+    backgroundColor: '#007aff',
+    width: 20,
+    height: 20,
+    borderRadius: 10,
+    margin: 7,
+  },
+  unActiveDot: {
+    backgroundColor: 'rgba(0,0,0,0.2)',
+    width: 16,
+    height: 16,
+    borderRadius: 8,
+    margin: 7,
+  },
 });
-
-const data = [
-    [0, 0],
-    [1, 1],
-    [2, 2],
-    [3, 3],
-    [4, 4],
-    [5, 5],
-    [6, 4],
-    [7, 3],
-    [8, 2],
-    [9, 1],
-    [10, 0],
-    [11, 1],
-    [12, 2],
-    [13, 3],
-    [14, 4],
-    [15, 5],
-    [16, 6],
-];
 
 class Graph extends React.Component {
 
@@ -253,6 +253,7 @@ class Graph extends React.Component {
   }
 
   changeTempSource() {
+    // TODO, handle if there are more/less than two temp sources
     if (this.state.tempSource === 'inside') {
       this.setState({
         data: this.state.dataOutside,
@@ -395,9 +396,21 @@ class Graph extends React.Component {
           )}
 
         </Picker>
-        <Text style={{ color: '#0099CC', fontSize: 20, alignSelf: 'center' }}>
-          {'<- Swipe to change location ->'}
-        </Text>
+        {
+          this.state.tempSource === 'inside' ? (
+            <View style={styles.navigationView}>
+              <View style={styles.activeDot} />
+              <View style={styles.unActiveDot} />
+            </View>
+            )
+            :
+            (
+            <View style={styles.navigationView}>
+              <View style={styles.unActiveDot} />
+              <View style={styles.activeDot} />
+            </View>
+          )
+        }
       </View>
     );
   }
