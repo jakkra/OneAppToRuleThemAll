@@ -123,7 +123,7 @@ export default class Menu extends React.Component {
       }
     })
     .catch(() => ToastAndroid.show('Failed to send deviceToken', ToastAndroid.SHORT));
-  
+  }
 
   registerToPushNotifications() {
     PushNotification.configure({
