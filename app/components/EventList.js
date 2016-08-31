@@ -48,6 +48,9 @@ const styles = StyleSheet.create({
   },
 });
 
+/**
+ * Component that displays a list of events, which can be expanded.
+ */
 class EventList extends React.Component {
 
   static propTypes = {
@@ -63,6 +66,9 @@ class EventList extends React.Component {
     this.renderContent = this.renderContent.bind(this);
   }
 
+  /**
+   * Returns the correct "compleated" icon, depending on the state of an event
+   */
   getCompleatedIcon(event) {
     if (event.completed === true) {
       return { name: 'check-circle-o', color: 'lime' };
@@ -70,6 +76,11 @@ class EventList extends React.Component {
     return { name: 'circle-o', color: '#0099CC' };
   }
 
+  /**
+   * Updates a event, either by toggling the alarm, delete or compleate.
+   * @param {Number} eventId the id of the event to edit.
+   * @param {String} field Which field to change, { complete, alarm, delete }
+   */
   updateReminder(eventId, field) {
     const event = this.props.events.find((e) => e.id === eventId);
     switch (field) {
@@ -105,6 +116,9 @@ class EventList extends React.Component {
     }
   }
 
+  /**
+   * Renders an element in the list
+   */
   renderHeader(event) {
     const icon = this.getCompleatedIcon(event);
     return (
@@ -126,6 +140,9 @@ class EventList extends React.Component {
     );
   }
 
+  /**
+   * Renders the expanded content of the list element.
+   */
   renderContent(event) {
     const startTime = new Date(event.time);
     let day;
@@ -154,6 +171,7 @@ class EventList extends React.Component {
       </View>
     );
   }
+  
   render() {
     return (
       <Accordion

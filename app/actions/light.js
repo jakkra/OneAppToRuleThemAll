@@ -74,12 +74,16 @@ function startFetchInfo(dispatch, token) {
   .catch(error => dispatch(fetchLightsInfoFailure(error)));
 }
 
+/**
+ * Fetches all info about your hue light, including states, names and so on.
+ */
 export function fetchHueLighsInfo(token) {
   return (dispatch) => {
     dispatch(fetchLightsInfoRequest());
     startFetchInfo(dispatch, token);
   };
 }
+
 function sendLightChange(dispatch, token, params) {
   fetch(config.serverURL + '/api/light', {
     method: 'post',
@@ -102,6 +106,13 @@ function sendLightChange(dispatch, token, params) {
   .catch(error => dispatch(sendLightChangeFailure(error)));
 }
 
+/**
+ * Change the state of one light
+ * See Philips Hue light API for usage of params
+ * @param {Number} lightId The id of the lamp to change, retreived from fetchHueLightsInfo
+ * @param {Object} params The payload passed on to Philips hue server.
+ * @param {Number} token AccessToken to authenticate to the server
+ */
 export function changeLightState(token, lightId, params) {
   const p = params;
   p.url = '/api/0/lights/' + lightId + '/state';
@@ -111,6 +122,13 @@ export function changeLightState(token, lightId, params) {
   };
 }
 
+/**
+ * Change the state of a group of light
+ * See Philips Hue light API for usage of params
+ * @param {Number} group The id of the group to change, retreived from fetchHueLightsInfo
+ * @param {Object} params The payload passed on to Philips hue server.
+ * @param {Number} token AccessToken to authenticate to the server
+ */
 export function changeGroupState(token, groupId, params) {
   const p = params;
   p.url = '/api/0/groups/' + groupId + '/action';

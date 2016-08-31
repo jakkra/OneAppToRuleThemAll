@@ -77,6 +77,10 @@ const styles = StyleSheet.create({
   },
 });
 
+/**
+ * Displays a list of the Surveillance logs, also includes a buttom change your
+ * location to home/away, incase the geofence isn't working correctly.
+ */
 export default class Surveillance extends React.Component {
 
   static propTypes = {
@@ -119,6 +123,9 @@ export default class Surveillance extends React.Component {
     }
   }
 
+  /**
+   * Changes the location of the user to either home or away.
+   */
   changeLocation() {
     fetch(config.serverURL + '/api/user/edit', {
       method: 'put',
@@ -142,6 +149,9 @@ export default class Surveillance extends React.Component {
   .catch((error) => ToastAndroid.show('Failed to change location' + error, ToastAndroid.LONG));
   }
 
+  /**
+   * Renders a one log row in the list.
+   */
   renderLogRow(log) {
     const date = new Date(log.createdAt);
     return (

@@ -98,6 +98,9 @@ const days = [
 
 ];
 
+/**
+ * Component that holds all components that has to do with reminders.
+ */
 class Reminders extends React.Component {
   static propTypes = {
     handleNavigate: React.PropTypes.func.isRequired,
@@ -149,10 +152,18 @@ class Reminders extends React.Component {
     BackAndroid.removeEventListener('hardwareBackPress', this.handleBackAction);
   }
 
+  /**
+   * Called when the user drags downwards int he list. Refreshes the reminders.
+   */
   onRefresh() {
     this.props.fetchReminders(this.props.loginReducer.accessToken);
   }
 
+  /**
+   * Called when a user want to add a new reminder.
+   * @param {String} key The key of the day to add the remidner on.
+   * @param {String} day The name of the day in the list of reminders.
+   */
   onPressAdd(key, day) {
     this.refs.scrollReminders.fadeOut({ duration: 300 });
     this.setState({ createReminder: true, reminderDay: day });
@@ -160,6 +171,10 @@ class Reminders extends React.Component {
     this.refs.headerInput.focus();
   }
 
+  /**
+   * Called when a new reminder is created.
+   * Will change state and fade away the create reminder view.
+   */
   handleEndCreateReminder() {
     this.refs.headerInput.blur();
     this.setState({
@@ -169,6 +184,9 @@ class Reminders extends React.Component {
     this.refs.scrollReminders.fadeIn({ duration: 300 });
   }
 
+  /**
+   * Overrides the back button, lets me handle it or pass it on.
+   */
   handleBackAction() {
     if (this.state.createReminder === true) {
       this.handleEndCreateReminder();
@@ -177,6 +195,11 @@ class Reminders extends React.Component {
     return false;
   }
 
+  /**
+   * Opens the view to set the time and date of the new reminder.
+   * Only shows the date picker if the dayKey is 'UPCOMING'
+   * When done it will create the new reminder.
+   */
   createNewReminder() {
     const now = new Date();
     const options = {
@@ -220,6 +243,12 @@ class Reminders extends React.Component {
     }
   }
 
+  /**
+   * Opens a TimePicker.
+   * @param {String} selectedYear The date the reminder shall be created on.
+   * @param {Object} options Options to the TimePickerAndroid component, see React-Native docs.
+   * When done it will create the new reminder.
+   */
   showTime(selectedYear, options) {
     TimePickerAndroid.open(options)
     .then(({ action, minute, hour }) => {
@@ -241,7 +270,10 @@ class Reminders extends React.Component {
     .catch(() => this.handleEndCreateReminder());
   }
 
-
+  /**
+   * Renders the different "days" in the list. Eg. "Today/Tomorrow/Upcoming/Someday"
+   * and their expanded content.
+   */
   renderDayRows() {
     function rh({ key, day }) {
       const addButton = (

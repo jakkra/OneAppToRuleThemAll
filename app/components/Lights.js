@@ -98,7 +98,9 @@ const styles = StyleSheet.create({
   },
 });
 
-
+/**
+ * Shows a list of the hue lighs and controllers to change them.
+ */
 class Lights extends React.Component {
 
   static propTypes = {
@@ -177,6 +179,9 @@ class Lights extends React.Component {
   }
 
 
+  /**
+   * Renders the content of the light/group when expanded.
+   */
   renderContent(light) {
     return (
       <MKSlider
@@ -190,6 +195,9 @@ class Lights extends React.Component {
     );
   }
 
+  /**
+   * Renders a light in the list.
+   */
   renderLights() {
     function rh(light) {
       return (
@@ -226,6 +234,9 @@ class Lights extends React.Component {
     );
   }
 
+  /**
+   * Renders a group in the list.
+   */
   renderGroups() {
     function rh(group) {
       return (
@@ -264,6 +275,9 @@ class Lights extends React.Component {
     );
   }
 
+  /**
+   * Renders a divider with text.
+   */
   renderDivider(text) {
     return (
       <View style={styles.divider}>

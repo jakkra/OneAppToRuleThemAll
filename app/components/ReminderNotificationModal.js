@@ -78,6 +78,11 @@ const numUnits3 = ['60', '120'];
 
 const units = ['minutes', 'hours', 'days', 'weeks'];
 
+
+/**
+ * A Modal which displays an reminder notification on top of the app.
+ * It lets the user to compleate and event, snooze an event for some time or delete it.
+ */
 export default class ReminderNotificationModal extends React.Component {
 
   static propTypes = {
@@ -121,6 +126,13 @@ export default class ReminderNotificationModal extends React.Component {
     }
   }
 
+  /**
+   * Used for snoozing remninder.
+   * A callback from the one ToggleButtons, will be called when one is pressed.
+   * When both a unit and number of units are specified, it will edit the event.
+   * TODO handle untoggle better.
+   * @param {String} key The key/text of the ToggleButton
+   */
   onToggleButton(key) {
     if (this.isNumber(key)) {
       this.numberUnits = key;
@@ -157,14 +169,24 @@ export default class ReminderNotificationModal extends React.Component {
     }
   }
 
+  /**
+   * @return {Bool} True if the obj is a number, false otherwise.
+   */
   isNumber(obj) {
     return !isNaN(parseInt(obj, 10));
   }
 
+  /**
+   * Displays options to edit the reminder in the modal.
+   */
   handleReminder() {
     this.refs.swiper.scrollBy(1);
   }
 
+  /**
+   * Called when the user clicks on the complete reminder button.
+   * Will set the reminder to compleated.
+   */
   completeReminder() {
     const reminderId = this.props.passProps.reminder.id;
     this.props.editReminder({
@@ -176,6 +198,10 @@ export default class ReminderNotificationModal extends React.Component {
     this.refs.swiper.scrollBy(2);
   }
 
+  /**
+   * Called when the user clicks on the deletye reminder button.
+   * Will mark the reminder as deleted.
+   */
   deleteReminder() {
     const reminderId = this.props.passProps.reminder.id;
     this.props.editReminder({
@@ -187,6 +213,10 @@ export default class ReminderNotificationModal extends React.Component {
     this.refs.swiper.scrollBy(2);
   }
 
+  /**
+   * Called when the user clicks on the snooze reminder button.
+   * Will open options to snooze the reminder for some time.
+   */
   delayReminder() {
     this.refs.swiper.scrollBy(1);
   }

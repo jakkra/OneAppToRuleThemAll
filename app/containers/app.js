@@ -16,10 +16,3 @@ export default connect(
     resetRoute: () => reset(),
   }
 )(NavRoot);
-
-// function mapDispatchToProps (dispatch) {
-//   return {
-//     pushRoute: (route) => dispatch(push(route)),
-//     popRoute: () => dispatch(pop())
-//   }
-// }

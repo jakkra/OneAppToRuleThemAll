@@ -121,6 +121,11 @@ function createUserOnServer(dispatch, name, email, password) {
 });
 }
 
+/**
+ * Authenitacte to the server
+ * @param {String} email The email address to authenitacte with.
+ * @param {String} password The password to authenticate with.
+ */
 export function authenticate(email, password) {
   return (dispatch) => {
     dispatch(loginRequest());
@@ -128,6 +133,12 @@ export function authenticate(email, password) {
   };
 }
 
+/**
+ * Create a new user.
+ * @param {String} name The name of the new user.
+ * @param {String} email The user email to register.
+ * @param {String} password The password of the new user.
+ */
 export function createUser(name, email, password) {
   return (dispatch) => {
     dispatch(createUserRequest());

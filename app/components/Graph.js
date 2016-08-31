@@ -91,6 +91,9 @@ const styles = StyleSheet.create({
   },
 });
 
+/**
+ * Displays graphs of temperatures from different sources.
+ */
 class Graph extends React.Component {
 
   static propTypes = {
@@ -216,6 +219,11 @@ class Graph extends React.Component {
   }
 
 
+  /**
+   * Returns a list of the last seven days, with data of each day.
+   * Like a label (monday/tomorrow/today...)
+   * A key and a Date object of the day.
+   */
   getLastDays() {
     const today = new Date();
     const initialDayNbr = today.getDate();
@@ -235,6 +243,9 @@ class Graph extends React.Component {
     return lastSevenDays;
   }
 
+  /**
+   * Updates the state when the user changes the day to view temperatures of.
+   */
   handleChangeDay(val, index) {
     this.setState({
       day: this.lastSevenDays[index],
@@ -251,6 +262,9 @@ class Graph extends React.Component {
     );
   }
 
+  /**
+   * Handles when the user changes the source of the temperature.
+   */
   changeTempSource() {
     // TODO, handle if there are more/less than two temp sources
     if (this.state.tempSource === 'inside') {
@@ -274,6 +288,9 @@ class Graph extends React.Component {
     }
   }
 
+  /**
+   * Renders the x-labels in the Graphs
+   */
   renderXLabel(val) {
     const firstDate = new Date(this.state.lessData[0][0]);
     const lastDate = new Date(this.state.lessData[this.state.lessData.length - 1][0]);

@@ -2,13 +2,9 @@ import React from 'react';
 
 import {
 StyleSheet,
-View,
 TouchableOpacity,
 Text,
 } from 'react-native';
-
-import Icon from 'react-native-vector-icons/FontAwesome';
-
 
 const styles = StyleSheet.create({
   textStyle: {
@@ -22,7 +18,9 @@ const styles = StyleSheet.create({
   },
 });
 
-
+/**
+ * A button that will toggle change color and do a callback when pressed.
+ */
 export default class ToggleButton extends React.Component {
 
   static propTypes = {
@@ -56,6 +54,9 @@ export default class ToggleButton extends React.Component {
 
   }
 
+  /**
+   * Called when pressed on, makes a callback.
+   */
   onPress() {
     const isToggled = this.state.toggled;
     this.setState({ toggled: !this.state.toggled });

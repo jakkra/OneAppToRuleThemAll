@@ -26,6 +26,9 @@ const styles = StyleSheet.create({
 });
 
 
+/**
+ * Displays a row of actions to do on a Reminder.
+ */
 const ReminderActions = ({ onComplete, event }) => (
   <View animation="lightSpeedIn" style={styles.row}>
     <TouchableOpacity

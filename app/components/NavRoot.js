@@ -18,6 +18,9 @@ const {
   CardStack: NavigationCardStack,
 } = NavigationExperimental;
 
+/**
+ * Root component of the navigator, handles swaping screens and displaying notification modal.
+ */
 class NavRoot extends Component {
 
   static propTypes = {
@@ -52,12 +55,18 @@ class NavRoot extends Component {
     this.setState({ modalOpen: false });
   }
 
+  /**
+   * Changes the state so that a Modal will show.
+   */
   showModal(route, props) {
     if (route.key === 'ReminderNotificationModal') {
       this.setState({ modal: ReminderNotificationModal, modalOpen: true, modalProps: props });
     }
   }
 
+  /**
+   * Handles rendering of the different screens.
+   */
   handleNavigate(action) {
     switch (action && action.type) {
       case 'push':
@@ -75,6 +84,9 @@ class NavRoot extends Component {
     }
   }
 
+  /**
+   * Overrides the back button, lets me handle it. For example, close the Modal if it's open.
+   */
   handleBackAction() {
     if (this.props.navigation.index === 0 || this.props.navigation.index === 1) {
       return false;
@@ -87,6 +99,9 @@ class NavRoot extends Component {
     return true;
   }
 
+  /**
+   * Renders a screen/scence in this root component.
+   */
   renderScene(props) {
     const prefix = 'scene_';
     const { scene } = props;

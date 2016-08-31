@@ -93,7 +93,7 @@ function startfetchingReminders(dispatch, token) {
 
 /**
  * Fetches all Reminders
- * @param {Number} auth to authenticate to the server
+ * @param {Number} token AccessToken to authenticate to the server
  */
 export function fetchReminders(token) {
   return (dispatch) => {
@@ -128,6 +128,7 @@ function createNewReminder(dispatch, event, token) {
 
 /**
  * Creates a new reminder
+ * @param {Object} event The new event to create format: { title, time, reminderActive }
  * @param {Number} auth to authenticate to the server
  */
 export function createReminder(event, token) {
@@ -164,7 +165,8 @@ function sendEditReminder(dispatch, event, token, successCallback, failureCallba
 
 /**
  * Edits a reminder with id with spcified params
- * @param {Number} token to authenticate to the server
+ * @param {Number} token to authenticate to the server.
+ * @param {Object} event The fields of the event to change, must include an id for the reminder.
  */
 export function editReminder(event, token) {
   return (dispatch) => {

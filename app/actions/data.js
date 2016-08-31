@@ -98,8 +98,8 @@ function startFetchTemperatures(dispatch, token) {
 }
 
 /**
- * Fetches all Reminders
- * @param {Number} auth to authenticate to the server
+ * Fetches all Temperatures
+ * @param {Number} token AccessToken to authenticate to the server
  */
 export function fetchTemperatures(token) {
   return (dispatch) => {
@@ -107,6 +107,7 @@ export function fetchTemperatures(token) {
     startFetchTemperatures(dispatch, token);
   };
 }
+
 function startFetchLimitedTemperatures(dispatch, token, endDate, unit, count, limit) {
   let url = config.serverURL + '/api/temperature/?token=' + token;
   if (endDate) url = url + '&endDate=' + endDate;
@@ -128,8 +129,12 @@ function startFetchLimitedTemperatures(dispatch, token, endDate, unit, count, li
 }
 
 /**
- * Fetches all Reminders
+ * Fetches filtered temperatures.
  * @param {Number} auth to authenticate to the server
+ * @param {Integer} [limit] The number temperatures to return.
+ * @param {String} [endDate=now] The date of the last temperature logging.
+ * @param {String} [unit] The unit to work with. One of: { days, hours, minutes }
+ * @param {String} [count] The number of units backwards from endDate.
  */
 export function fetchTemperaturesLimit(token, endDate, unit, count, limit) {
   return (dispatch) => {
@@ -153,8 +158,8 @@ function startFetchLogs(dispatch, token) {
 }
 
 /**
- * Fetches all Reminders
- * @param {Number} auth to authenticate to the server
+ * Fetches all surveillance logs.
+ * @param {Number} token AccessToken to authenticate to the server.
  */
 export function fetchLogs(token) {
   return (dispatch) => {

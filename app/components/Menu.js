@@ -66,6 +66,9 @@ const styles = StyleSheet.create({
   },
 });
 
+/**
+ * The home component, lets the user go the the different parts of the app.
+ */
 export default class Menu extends React.Component {
 
   static propTypes = {
@@ -101,6 +104,10 @@ export default class Menu extends React.Component {
     });
   }
 
+  /**
+   * After successful register, it sends the deviceToken to the backend.
+   * @param {String} deviceToken The token retreived from register.
+   */
   sendDeviceTokenToServer(deviceToken) {
     PushNotification.popInitialNotification((notification) => {
       if (notification) { this.handleNotification(notification); }
@@ -125,6 +132,9 @@ export default class Menu extends React.Component {
     .catch(() => ToastAndroid.show('Failed to send deviceToken', ToastAndroid.SHORT));
   }
 
+  /**
+  * Registrates the device to for push notifications,
+  */
   registerToPushNotifications() {
     PushNotification.configure({
       onRegister: (response) => this.sendDeviceTokenToServer(response.token),
@@ -134,6 +144,10 @@ export default class Menu extends React.Component {
     });
   }
 
+  /**
+  * Will be called when an notification is received.
+  * @param {Object} notification The notification send to this device/app.
+  */
   handleNotification(notification) {
     if (notification.foreground === true) {
       if (notification.type === 'reminder') {
@@ -179,6 +193,9 @@ export default class Menu extends React.Component {
     }
   }
 
+  /**
+  * Opens the reminders screen.
+  */
   openReminders() {
     const route = {
       type: 'push',
@@ -190,6 +207,9 @@ export default class Menu extends React.Component {
     this.props.handleNavigate(route);
   }
 
+  /**
+  * Opens the temperature graph screen.
+  */
   openGraph() {
     const route = {
       type: 'push',
@@ -200,6 +220,10 @@ export default class Menu extends React.Component {
     };
     this.props.handleNavigate(route);
   }
+
+  /**
+  * Opens the light controller screen.
+  */
   openLights() {
     const route = {
       type: 'push',
@@ -211,6 +235,9 @@ export default class Menu extends React.Component {
     this.props.handleNavigate(route);
   }
 
+  /**
+  * Opens the surveillance logs screen.
+  */
   openLogs() {
     const route = {
       type: 'push',
@@ -222,6 +249,9 @@ export default class Menu extends React.Component {
     this.props.handleNavigate(route);
   }
 
+  /**
+  * Logs out of the app.
+  */
   logOut() {
     const route = {
       type: 'reset',

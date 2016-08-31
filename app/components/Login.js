@@ -94,6 +94,9 @@ const styles = StyleSheet.create({
   },
 });
 
+/**
+ * The login screen copmponent.
+ */
 class Login extends React.Component {
 
   static propTypes = {
@@ -149,6 +152,9 @@ class Login extends React.Component {
     return false;
   }
 
+  /**
+   * Passes on to the correct method when one of the buttoms are pressed.
+   */
   buttonPress() {
     if (this.state.showCreate === false) {
       this.handleLoginClick();
@@ -156,6 +162,10 @@ class Login extends React.Component {
       this.handleCreateUserClick();
     }
   }
+
+  /**
+   * Handles when the user presses login.
+   */
   handleLoginClick() {
     if (this.state.email !== '' && this.state.password !== '') {
       this.props.authenticate(this.state.email, this.state.password);
@@ -164,6 +174,9 @@ class Login extends React.Component {
     }
   }
 
+  /**
+   * Handles when the user presses create new user.
+   */
   handleCreateUserClick() {
     if (this.state.email !== '' && this.state.password !== '' && this.state.name !== '') {
       this.props.createUser(this.state.name, this.state.email, this.state.password);
@@ -172,6 +185,9 @@ class Login extends React.Component {
     }
   }
 
+  /**
+   * After a successful login, this method pushes the home screen of the app.
+   */
   pushAfterSuccesLogin() {
     const route = {
       type: 'push',
@@ -183,6 +199,9 @@ class Login extends React.Component {
     this.props.handleNavigate(route);
   }
 
+  /**
+   * Swaps between login view and create new user view.
+   */
   swapUI() {
     if (this.state.showCreate === false) {
       this.refs.button.slideOutRight(500);
@@ -203,6 +222,9 @@ class Login extends React.Component {
     }
   }
 
+  /**
+   * Swaps from login to create new user.
+   */
   createAccount() {
     this.swapUI();
   }

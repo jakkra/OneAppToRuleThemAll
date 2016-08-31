@@ -22,7 +22,12 @@ const styles = StyleSheet.create({
   },
 });
 
-
+/**
+ * Component that displays some spinning icon from react-native-vector-icons/FontAwesome.
+ * Can be used as a spinner when changing the prop loading.
+ * It can take a list of boolean props { loading },
+ * so the component will spin if any of them are true.
+ */
 export default class SpinningIcon extends React.Component {
 
   static propTypes = {
@@ -60,6 +65,9 @@ export default class SpinningIcon extends React.Component {
     }
   }
 
+  /**
+   * Check if any props changed.
+   */
   hasPropsChanged(nextProps) {
     if (this.props.loading.length !== nextProps.loading.length) {
       return true;
@@ -72,6 +80,9 @@ export default class SpinningIcon extends React.Component {
     return false;
   }
 
+  /**
+   * Checks if any boolean in the loading prop list are true.
+   */
   isAnyPropLoading(props) {
     for (let i = 0; i < props.loading.length; i++) {
       if (props.loading[i] === true) {
@@ -81,6 +92,9 @@ export default class SpinningIcon extends React.Component {
     return false;
   }
 
+  /**
+   * Starts spinning the icon.
+   */
   spin() {
     this.state.spinValue.setValue(0);
     Animated.timing(
@@ -99,6 +113,9 @@ export default class SpinningIcon extends React.Component {
     });
   }
 
+  /**
+   * Stops the spinning.
+   */
   stopSpin() {
     this.state.spinValue.stopAnimation();
   }
