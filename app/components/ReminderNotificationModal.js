@@ -86,7 +86,7 @@ const units = ['minutes', 'hours', 'days', 'weeks'];
 export default class ReminderNotificationModal extends React.Component {
 
   static propTypes = {
-    loginReducer: React.PropTypes.object.isRequired,
+    user: React.PropTypes.object.isRequired,
     remindersReducer: React.PropTypes.object.isRequired,
     isOpen: React.PropTypes.bool,
     onClose: React.PropTypes.func,
@@ -164,7 +164,7 @@ export default class ReminderNotificationModal extends React.Component {
         id: reminderId,
         time: snoozeTime,
       },
-        this.props.loginReducer.accessToken
+        this.props.user.accessToken
       );
     }
   }
@@ -193,7 +193,7 @@ export default class ReminderNotificationModal extends React.Component {
       id: reminderId,
       completed: true,
     },
-      this.props.loginReducer.accessToken
+      this.props.user.accessToken
     );
     this.refs.swiper.scrollBy(2);
   }
@@ -208,7 +208,7 @@ export default class ReminderNotificationModal extends React.Component {
       id: reminderId,
       deleted: true,
     },
-      this.props.loginReducer.accessToken
+      this.props.user.accessToken
     );
     this.refs.swiper.scrollBy(2);
   }
@@ -338,7 +338,7 @@ export default class ReminderNotificationModal extends React.Component {
 
 function mapStateToProps(state) {
   return {
-    loginReducer: state.login,
+    user: state.user,
     remindersReducer: state.reminders,
   };
 }

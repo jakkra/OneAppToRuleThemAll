@@ -10,7 +10,7 @@ import ReactNative, {
 } from 'react-native';
 
 import { connect } from 'react-redux';
-import { authenticate, createUser } from '../actions/login';
+import { authenticate, createUser } from '../actions/user';
 
 import SpinningIcon from './SpinningIcon';
 import { createAnimatableComponent, View, Text } from 'react-native-animatable';
@@ -100,7 +100,7 @@ const styles = StyleSheet.create({
 class Login extends React.Component {
 
   static propTypes = {
-    loginReducer: React.PropTypes.object.isRequired,
+    userReducer: React.PropTypes.object.isRequired,
     authenticate: React.PropTypes.func.isRequired,
     handleNavigate: React.PropTypes.func.isRequired,
     goBack: React.PropTypes.func.isRequired,
@@ -115,8 +115,8 @@ class Login extends React.Component {
     this.handleBackAction = this.handleBackAction.bind(this);
 
     this.state = {
-      email: 'ijakkra@gmail.com',
-      password: 'password',
+      email: '',
+      password: '',
       name: '',
       showCreate: false,
     };
@@ -127,14 +127,18 @@ class Login extends React.Component {
   }
 
   componentWillReceiveProps(nextProps) {
-    if (nextProps.loginReducer.isLoggingIn === false
-      && this.props.loginReducer.isLoggingIn === true) {
+    if (nextProps.userReducer.error === true) {
+      ToastAndroid.show('Login failed', ToastAndroid.LONG);
+      return;
+    }
+    if (nextProps.userReducer.isLoggingIn === false
+      && this.props.userReducer.isLoggingIn === true) {
       this.pushAfterSuccesLogin();
-    } else if (nextProps.loginReducer.error === true &&
-      this.props.loginReducer.error === false) {
+    } else if (nextProps.userReducer.error === true &&
+      this.props.userReducer.error === false) {
       ToastAndroid.show('Login Failure', ToastAndroid.SHORT);
-    } else if (nextProps.loginReducer.isCreatingUser === false
-      && this.props.loginReducer.isCreatingUser === true) {
+    } else if (nextProps.userReducer.isCreatingUser === false
+      && this.props.userReducer.isCreatingUser === true) {
       ToastAndroid.show('User successfully created', ToastAndroid.SHORT);
       this.swapUI();
     }
@@ -253,7 +257,7 @@ class Login extends React.Component {
         <View style={styles.header}>
           <SpinningIcon
             icon={"rocket"}
-            loading={[this.props.loginReducer.isLoggingIn, this.props.loginReducer.isCreatingUser]}
+            loading={[this.props.userReducer.isLoggingIn, this.props.userReducer.isCreatingUser]}
           />
         </View>
         <View style={styles.inputs}>
@@ -274,6 +278,7 @@ class Login extends React.Component {
           <View style={styles.inputContainer}>
             <Image style={styles.inputPassword} source={{ uri: 'http://i.imgur.com/ON58SIG.png' }} />
             <TextInput
+              secureTextEntry={true}
               ref="password"
               style={[styles.input, styles.whiteFont]}
               placeholder="Password"
@@ -309,7 +314,7 @@ class Login extends React.Component {
 
 function mapStateToProps(state) {
   return {
-    loginReducer: state.login,
+    userReducer: state.user,
   };
 }
 

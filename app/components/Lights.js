@@ -8,6 +8,7 @@ import {
   Dimensions,
   Text,
   InteractionManager,
+  ToastAndroid,
 } from 'react-native';
 
 import {
@@ -108,14 +109,14 @@ class Lights extends React.Component {
     fetchHueLighsInfo: React.PropTypes.func.isRequired,
     changeGroupState: React.PropTypes.func.isRequired,
     changeLightState: React.PropTypes.func.isRequired,
-    loginReducer: React.PropTypes.object.isRequired,
+    user: React.PropTypes.object.isRequired,
     lightReducer: React.PropTypes.object.isRequired,
   };
 
   constructor(props) {
     super(props);
     this.state = {
-      brightness: 127,
+      brightness: 255,
       lights: null,
       groups: null,
     };
@@ -126,16 +127,21 @@ class Lights extends React.Component {
 
   componentDidMount() {
     InteractionManager.runAfterInteractions(() => {
-      this.props.fetchHueLighsInfo(this.props.loginReducer.accessToken);
+      this.props.fetchHueLighsInfo(this.props.user.accessToken);
     });
   }
 
   componentWillReceiveProps(nextProps) {
+    console.log(nextProps);
+    if (nextProps.lightReducer.error === true) {
+      ToastAndroid.show('Error getting light info, invalid configuration.', ToastAndroid.LONG);
+      return;
+    }
     if (this.props.lightReducer.isFetching === true &&
       nextProps.lightReducer.isFetching === false &&
       this.props.lightReducer.updatingInfo === false) {
       // Did change light state
-      this.props.fetchHueLighsInfo(this.props.loginReducer.accessToken);
+      this.props.fetchHueLighsInfo(this.props.user.accessToken);
     } else if (this.props.lightReducer.isFetching === false &&
       nextProps.lightReducer.isFetching === true) {
       // start loading
@@ -165,13 +171,13 @@ class Lights extends React.Component {
   changeHueState(hue, params) {
     if (hue.type === 'Room') {
       this.props.changeGroupState(
-        this.props.loginReducer.accessToken,
+        this.props.user.accessToken,
         hue.key,
         params
       );
     } else {
       this.props.changeLightState(
-        this.props.loginReducer.accessToken,
+        this.props.user.accessToken,
         hue.key,
         params
       );
@@ -322,7 +328,7 @@ class Lights extends React.Component {
 function mapStateToProps(state) {
   return {
     lightReducer: state.light,
-    loginReducer: state.login,
+    user: state.user,
   };
 }
 

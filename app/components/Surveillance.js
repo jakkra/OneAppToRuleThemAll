@@ -86,7 +86,7 @@ export default class Surveillance extends React.Component {
   static propTypes = {
     handleNavigate: React.PropTypes.func.isRequired,
     goBack: React.PropTypes.func.isRequired,
-    loginReducer: React.PropTypes.object.isRequired,
+    user: React.PropTypes.object.isRequired,
     fetchLogs: React.PropTypes.func.isRequired,
     changeLocation: React.PropTypes.func.isRequired,
     dataReducer: React.PropTypes.object.isRequired,
@@ -98,28 +98,32 @@ export default class Surveillance extends React.Component {
     this.state = {
       dataSource: this.ds.cloneWithRows([]),
       atHome: false,
+      hasFetchedOnce: false,
     };
     this.changeLocation = this.changeLocation.bind(this);
   }
 
   componentDidMount() {
     InteractionManager.runAfterInteractions(() => {
-      fetch(config.serverURL + '/api/user/?token=' + this.props.loginReducer.accessToken)
-      .then((response) => response.json())
-      .then((user) => this.setState({ atHome: user.atHome }))
-      .catch(() => ToastAndroid.show('error getting user location', ToastAndroid.SHORT));
-      this.props.fetchLogs(this.props.loginReducer.accessToken);
+      this.setState({ atHome: this.props.user.atHome });
+      this.props.fetchLogs(this.props.user.accessToken);
     });
-    // ToastAndroid.show('Error getting location status', ToastAndroid.SHORT)
   }
 
 
   componentWillReceiveProps(nextProps) {
+    console.log(nextProps);
     if (this.props.dataReducer.isFetchingLogs === true &&
       nextProps.dataReducer.isFetchingLogs === false) {
-      this.setState({
-        dataSource: this.ds.cloneWithRows(nextProps.dataReducer.logs),
-      });
+      if (nextProps.dataReducer.logs.length === 0) {
+        ToastAndroid.show('No logs found', ToastAndroid.LONG);
+        this.setState({ hasFetchedOnce: true });
+      } else {
+        this.setState({
+          hasFetchedOnce: true,
+          dataSource: this.ds.cloneWithRows(nextProps.dataReducer.logs),
+        });
+      }
     }
   }
 
@@ -132,7 +136,7 @@ export default class Surveillance extends React.Component {
       headers: {
         Accept: 'application/json',
         'Content-Type': 'application/json',
-        'x-access-token': this.props.loginReducer.accessToken,
+        'x-access-token': this.props.user.accessToken,
       },
       body: JSON.stringify({
         atHome: !this.state.atHome,
@@ -166,7 +170,7 @@ export default class Surveillance extends React.Component {
   }
 
   render() {
-    if (this.props.dataReducer.isFetchingLogs === true || this.props.dataReducer.logs.length < 1) {
+    if (this.props.dataReducer.isFetchingLogs === true || !this.state.hasFetchedOnce) {
       return (
         <View style={styles.container}>
           <View style={styles.header}>
@@ -205,7 +209,7 @@ export default class Surveillance extends React.Component {
 
 function mapStateToProps(state) {
   return {
-    loginReducer: state.login,
+    user: state.user,
     dataReducer: state.data,
   };
 }

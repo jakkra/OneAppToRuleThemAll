@@ -5,6 +5,8 @@ import Graph from './Graph';
 import Menu from './Menu';
 import Lights from './Lights';
 import Surveillance from './Surveillance';
+import Settings from './Settings';
+
 
 import ReminderNotificationModal from './ReminderNotificationModal';
 
@@ -117,6 +119,8 @@ class NavRoot extends Component {
       return <Lights goBack={this.handleBackAction} handleNavigate={this.handleNavigate} />;
     } else if (scene.key === prefix + 'surveillance') {
       return <Surveillance goBack={this.handleBackAction} handleNavigate={this.handleNavigate} />;
+    } else if (scene.key === prefix + 'settings') {
+      return <Settings goBack={this.handleBackAction} handleNavigate={this.handleNavigate} />;
     }
 
     return null;

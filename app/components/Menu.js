@@ -74,7 +74,7 @@ export default class Menu extends React.Component {
   static propTypes = {
     handleNavigate: React.PropTypes.func.isRequired,
     goBack: React.PropTypes.func.isRequired,
-    loginReducer: React.PropTypes.object.isRequired,
+    user: React.PropTypes.object.isRequired,
   };
 
   constructor(props) {
@@ -84,6 +84,7 @@ export default class Menu extends React.Component {
     this.logOut = this.logOut.bind(this);
     this.openLights = this.openLights.bind(this);
     this.openLogs = this.openLogs.bind(this);
+    this.openSettings = this.openSettings.bind(this);
     this.sendDeviceTokenToServer = this.sendDeviceTokenToServer.bind(this);
     this.registerToPushNotifications = this.registerToPushNotifications.bind(this);
   }
@@ -91,16 +92,6 @@ export default class Menu extends React.Component {
   componentDidMount() {
     InteractionManager.runAfterInteractions(() => {
       this.registerToPushNotifications();
-      /* const route = {
-        type: 'modal',
-        route: {
-          key: 'ReminderNotificationModal',
-          title: 'modal',
-        },
-        passProps: { reminder: 'lolReminder' },
-      };
-      this.props.handleNavigate(route);
-      */
     });
   }
 
@@ -117,7 +108,7 @@ export default class Menu extends React.Component {
       headers: {
         Accept: 'application/json',
         'Content-Type': 'application/json',
-        'x-access-token': this.props.loginReducer.accessToken,
+        'x-access-token': this.props.user.accessToken,
       },
       body: JSON.stringify({
         deviceToken,
@@ -250,6 +241,20 @@ export default class Menu extends React.Component {
   }
 
   /**
+  * Opens settings screen.
+  */
+  openSettings() {
+    const route = {
+      type: 'push',
+      route: {
+        key: 'settings',
+        title: 'Settings',
+      },
+    };
+    this.props.handleNavigate(route);
+  }
+
+  /**
   * Logs out of the app.
   */
   logOut() {
@@ -267,7 +272,7 @@ export default class Menu extends React.Component {
     return (
       <View style={styles.container}>
         <View style={styles.header}>
-          <Text style={styles.headerText}>Hi Jakob!</Text>
+          <Text style={styles.headerText}>{'Hi ' + this.props.user.user.name + '!'}</Text>
         </View>
         <View style={styles.grid}>
           <View style={[styles.row, { borderBottomWidth: 0.2 }]}>
@@ -293,7 +298,12 @@ export default class Menu extends React.Component {
             </TouchableOpacity>
           </View>
           <View style={styles.row}>
-            <View style={[styles.rowElement, { borderRightWidth: 0.2 }]} />
+            <TouchableOpacity
+              onPress={this.openSettings}
+              style={[styles.rowElement, { borderRightWidth: 0.2 }]}
+            >
+              <IconFA ref="reminderButton" name="cogs" color="#0099CC" size={60} />
+            </TouchableOpacity>
             <TouchableOpacity onPress={this.logOut} style={styles.rowElement}>
               <IconFA ref="signOutButton" name="sign-out" color="#0099CC" size={60} />
             </TouchableOpacity>
@@ -306,7 +316,7 @@ export default class Menu extends React.Component {
 
 function mapStateToProps(state) {
   return {
-    loginReducer: state.login,
+    user: state.user,
   };
 }
 

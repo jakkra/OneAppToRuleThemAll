@@ -106,7 +106,7 @@ class Reminders extends React.Component {
     handleNavigate: React.PropTypes.func.isRequired,
     fetchReminders: React.PropTypes.func.isRequired,
     remindersReducer: React.PropTypes.object.isRequired,
-    loginReducer: React.PropTypes.object.isRequired,
+    user: React.PropTypes.object.isRequired,
     createReminder: React.PropTypes.func.isRequired,
   };
 
@@ -156,7 +156,7 @@ class Reminders extends React.Component {
    * Called when the user drags downwards int he list. Refreshes the reminders.
    */
   onRefresh() {
-    this.props.fetchReminders(this.props.loginReducer.accessToken);
+    this.props.fetchReminders(this.props.user.accessToken);
   }
 
   /**
@@ -219,7 +219,7 @@ class Reminders extends React.Component {
         title: this.state.reminderText,
         reminderActive: true,
       };
-      this.props.createReminder(event, this.props.loginReducer.accessToken);
+      this.props.createReminder(event, this.props.user.accessToken);
       this.handleEndCreateReminder();
 
       return;
@@ -261,7 +261,7 @@ class Reminders extends React.Component {
           time: selectedYear,
           reminderActive: true,
         };
-        this.props.createReminder(event, this.props.loginReducer.accessToken);
+        this.props.createReminder(event, this.props.user.accessToken);
         this.handleEndCreateReminder();
       } else if (action === TimePickerAndroid.dismissedAction) {
         this.handleEndCreateReminder();
@@ -372,7 +372,7 @@ class Reminders extends React.Component {
 function mapStateToProps(state) {
   return {
     remindersReducer: state.reminders,
-    loginReducer: state.login,
+    user: state.user,
   };
 }
 

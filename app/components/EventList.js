@@ -56,7 +56,7 @@ class EventList extends React.Component {
   static propTypes = {
     events: React.PropTypes.array.isRequired,
     editReminder: React.PropTypes.func.isRequired,
-    loginReducer: React.PropTypes.object.isRequired,
+    user: React.PropTypes.object.isRequired,
   };
 
   constructor(props) {
@@ -92,7 +92,7 @@ class EventList extends React.Component {
           id: eventId,
           completed: !event.completed,
         },
-          this.props.loginReducer.accessToken
+          this.props.user.accessToken
         );
         return;
       case 'alarm':
@@ -100,7 +100,7 @@ class EventList extends React.Component {
           id: eventId,
           reminderActive: !event.reminderActive,
         },
-          this.props.loginReducer.accessToken
+          this.props.user.accessToken
         );
         return;
       case 'delete':
@@ -108,7 +108,7 @@ class EventList extends React.Component {
           id: eventId,
           deleted: true,
         },
-          this.props.loginReducer.accessToken
+          this.props.user.accessToken
         );
         return;
       default:
@@ -171,7 +171,7 @@ class EventList extends React.Component {
       </View>
     );
   }
-  
+
   render() {
     return (
       <Accordion
@@ -187,7 +187,7 @@ class EventList extends React.Component {
 function mapStateToProps(state) {
   return {
     remindersReducer: state.reminders,
-    loginReducer: state.login,
+    user: state.user,
   };
 }
 

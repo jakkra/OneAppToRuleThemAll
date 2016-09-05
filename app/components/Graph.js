@@ -100,7 +100,7 @@ class Graph extends React.Component {
     handleNavigate: React.PropTypes.func.isRequired,
     fetchTemperatures: React.PropTypes.func.isRequired,
     fetchTemperaturesLimit: React.PropTypes.func.isRequired,
-    loginReducer: React.PropTypes.object.isRequired,
+    user: React.PropTypes.object.isRequired,
     dataReducer: React.PropTypes.object.isRequired,
   };
 
@@ -151,7 +151,7 @@ class Graph extends React.Component {
 
   componentDidMount() {
     InteractionManager.runAfterInteractions(() => {
-      this.props.fetchTemperatures(this.props.loginReducer.accessToken);
+      this.props.fetchTemperatures(this.props.user.accessToken);
     });
   }
 
@@ -254,7 +254,7 @@ class Graph extends React.Component {
     date.setHours(23);
     date.setMinutes(59);
     date.setSeconds(59);
-    this.props.fetchTemperaturesLimit(this.props.loginReducer.accessToken,
+    this.props.fetchTemperaturesLimit(this.props.user.accessToken,
       date.toUTCString(),
       'days',
       1,
@@ -435,7 +435,7 @@ class Graph extends React.Component {
 function mapStateToProps(state) {
   return {
     dataReducer: state.data,
-    loginReducer: state.login,
+    user: state.user,
   };
 }
 
