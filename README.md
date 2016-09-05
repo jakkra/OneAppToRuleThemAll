@@ -4,6 +4,7 @@ An app that controls and monitors my home and my life.
 
 ##Demo
 
+Click to play! (Will open YouTube)
 [![IMAGE ALT TEXT](http://img.youtube.com/vi/O_si4gOGGao/0.jpg)](http://www.youtube.com/watch?v=O_si4gOGGao "Video Title")
 
 ## Getting Started
