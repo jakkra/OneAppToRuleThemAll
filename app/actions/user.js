@@ -2,6 +2,10 @@ export const LOGIN_REQUEST = 'LOGIN_REQUEST';
 export const LOGIN_SUCCESS = 'LOGIN_SUCCESS';
 export const LOGIN_FAILURE = 'LOGIN_FAILURE';
 
+export const LOGOUT_REQUEST = 'LOGOUT_REQUEST';
+export const LOGOUT_SUCCESS = 'LOGOUT_SUCCESS';
+export const LOGOUT_FAILURE = 'LOGOUT_FAILURE';
+
 export const CREATE_USER_REQUEST = 'CREATE_USER_REQUEST';
 export const CREATE_USER_SUCCESS = 'CREATE_USER_SUCCESS';
 export const CREATE_USER_FAILURE = 'CREATE_USER_FAILURE';
@@ -27,6 +31,25 @@ export function loginSuccess(json) {
 }
 
 export function loginFailure(json) {
+  return {
+    type: LOGOUT_FAILURE,
+    payload: json,
+  };
+}
+
+export function logoutRequest() {
+  return {
+    type: LOGOUT_REQUEST,
+  };
+}
+export function logoutSuccess(json) {
+  return {
+    type: LOGOUT_SUCCESS,
+    payload: json,
+  };
+}
+
+export function logoutFailure(json) {
   return {
     type: LOGIN_FAILURE,
     payload: json,
@@ -73,7 +96,7 @@ export function updateUserFailure(json) {
 
 export function accessTokenLogin(json) {
   return {
-    type: ACCESS_TOKEN_LOGIN,
+    type: LOGIN_SUCCESS,
     payload: json,
   };
 }
@@ -103,19 +126,19 @@ function authenticateToServer(dispatch, email, password) {
       password,
     }),
   })
-		.then(response => checkStatus(response))
-		.then(response => response.json())
-		.then(json => {
-  if (json.success) {
-    console.log(json);
-    dispatch(loginSuccess(json));
-  } else {
-    dispatch(loginFailure(json));
-  }
-})
-.catch(error => {
-  dispatch(loginFailure(error));
-});
+    .then(response => checkStatus(response))
+    .then(response => response.json())
+    .then(json => {
+      if (json.success) {
+        console.log('success', json);
+        dispatch(loginSuccess(json));
+      } else {
+        dispatch(loginFailure(json));
+      }
+    })
+  .catch(error => {
+    dispatch(loginFailure(error));
+  });
 }
 
 function createUserOnServer(dispatch, name, email, password) {
@@ -131,15 +154,15 @@ function createUserOnServer(dispatch, name, email, password) {
       password,
     }),
   })
-		.then(response => checkStatus(response))
-		.then(response => response.json())
-		.then(json => {
-  if (json.success) {
-    dispatch(createUserSuccess(json));
-  } else {
-    dispatch(createUserFailure(json));
-  }
-})
+    .then(response => checkStatus(response))
+    .then(response => response.json())
+    .then(json => {
+      if (json.success) {
+        dispatch(createUserSuccess(json));
+      } else {
+        dispatch(createUserFailure(json));
+      }
+    })
 .catch(error => {
   dispatch(createUserFailure(error));
 });
@@ -156,18 +179,18 @@ function updateUser(dispatch, accessToken, body) {
     },
     body: JSON.stringify(body),
   })
-		.then(response => checkStatus(response))
-		.then(response => response.json())
-		.then(json => {
-  if (json.success) {
-    dispatch(updateUserSuccess(json));
-  } else {
-    dispatch(updateUserFailure(json));
-  }
-})
-.catch(error => {
-  dispatch(updateUserFailure(error));
-});
+    .then(response => checkStatus(response))
+    .then(response => response.json())
+    .then(json => {
+      if (json.success) {
+        dispatch(updateUserSuccess(json));
+      } else {
+        dispatch(updateUserFailure(json));
+      }
+    })
+  .catch(error => {
+    dispatch(updateUserFailure(error));
+  });
 }
 
 /**
@@ -203,5 +226,14 @@ export function createUser(name, email, password) {
   return (dispatch) => {
     dispatch(createUserRequest());
     createUserOnServer(dispatch, name, email, password);
+  };
+}
+
+/**
+  Logout, nothing send to server.
+ */
+export function logout() {
+  return (dispatch) => {
+    dispatch(logoutSuccess());
   };
 }

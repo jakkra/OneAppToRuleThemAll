@@ -10,10 +10,12 @@ import ReactNative, {
 } from 'react-native';
 
 import { connect } from 'react-redux';
-import { authenticate, createUser } from '../actions/user';
+import { authenticate, createUser, accessTokenLogin } from '../actions/user';
 
 import SpinningIcon from './SpinningIcon';
 import { createAnimatableComponent, View, Text } from 'react-native-animatable';
+
+import SessionHandler from '../util/SessionHandler';
 
 const TouchableHighlight = createAnimatableComponent(ReactNative.TouchableHighlight);
 const backgroundImg = require('../img/rsz_stars.png');
@@ -102,6 +104,7 @@ class Login extends React.Component {
   static propTypes = {
     userReducer: React.PropTypes.object.isRequired,
     authenticate: React.PropTypes.func.isRequired,
+    accessTokenLogin: React.PropTypes.func.isRequired,
     handleNavigate: React.PropTypes.func.isRequired,
     goBack: React.PropTypes.func.isRequired,
     createUser: React.PropTypes.func.isRequired,
@@ -109,6 +112,8 @@ class Login extends React.Component {
 
   constructor(props) {
     super(props);
+    if (this.tryAutoLogin()) return;
+
     this.buttonPress = this.buttonPress.bind(this);
     this.pushAfterSuccesLogin = this.pushAfterSuccesLogin.bind(this);
     this.createAccount = this.createAccount.bind(this);
@@ -153,6 +158,20 @@ class Login extends React.Component {
       this.swapUI();
       return true;
     }
+    return false;
+  }
+
+  tryAutoLogin() {
+    new SessionHandler().getSessionUser()
+    .then((user) => {
+      if (user !== null) {
+        this.props.accessTokenLogin(user);
+        this.pushAfterSuccesLogin();
+        return true;
+      }
+      return false;
+    })
+    .catch(() => false);
     return false;
   }
 
@@ -278,7 +297,7 @@ class Login extends React.Component {
           <View style={styles.inputContainer}>
             <Image style={styles.inputPassword} source={{ uri: 'http://i.imgur.com/ON58SIG.png' }} />
             <TextInput
-              secureTextEntry={true}
+              secureTextEntry
               ref="password"
               style={[styles.input, styles.whiteFont]}
               placeholder="Password"
@@ -322,7 +341,7 @@ function mapDispatchToProps(dispatch) {
   return {
     authenticate: (...args) => { dispatch(authenticate(...args)); },
     createUser: (...args) => { dispatch(createUser(...args)); },
-
+    accessTokenLogin: (...args) => { dispatch(accessTokenLogin(...args)); },
   };
 }
 module.exports = connect(mapStateToProps, mapDispatchToProps)(Login);

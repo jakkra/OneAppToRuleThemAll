@@ -318,8 +318,8 @@ class Graph extends React.Component {
     const lastDate = new Date(this.state.lessData[this.state.lessData.length - 1][0]);
     let graphLabel = '';
     if (firstDate !== null && lastDate !== null) {
-      const d1 = firstDate.getDate() + '/' + firstDate.getMonth();
-      const d2 = lastDate.getDate() + '/' + lastDate.getMonth();
+      const d1 = firstDate.getDate() + '/' + (firstDate.getMonth() + 1);
+      const d2 = lastDate.getDate() + '/' + (lastDate.getMonth() + 1);
       if (d1 === d2) {
         graphLabel = d1;
       } else {

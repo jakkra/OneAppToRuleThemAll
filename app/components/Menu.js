@@ -4,7 +4,6 @@ import React from 'react';
 import {
   StyleSheet,
   View,
-  Dimensions,
   Text,
   TouchableOpacity,
   ToastAndroid,
@@ -19,6 +18,8 @@ import { createAnimatableComponent } from 'react-native-animatable';
 import PushNotification from 'react-native-push-notification';
 import config from '../util/config';
 
+import { logout } from '../actions/user';
+
 import IcFA from 'react-native-vector-icons/FontAwesome';
 import IcIO from 'react-native-vector-icons/Ionicons';
 
@@ -32,20 +33,23 @@ const styles = StyleSheet.create({
     backgroundColor: 'white',
   },
   header: {
-    flexDirection: 'column',
+    flexDirection: 'row',
     height: 50,
     borderBottomWidth: 0.3,
     borderBottomColor: 'lightgray',
-    alignItems: 'flex-start',
+    alignItems: 'center',
     justifyContent: 'center',
   },
   headerText: {
     fontSize: 18,
     fontWeight: 'bold',
-    marginHorizontal: 20,
     alignSelf: 'stretch',
-    width: Dimensions.get('window').width,
     color: '#0099CC',
+  },
+  headerColumn: {
+    flexDirection: 'column',
+    flex: 0.5,
+    marginHorizontal: 20,
   },
   grid: {
     flex: 1,
@@ -75,6 +79,7 @@ export default class Menu extends React.Component {
     handleNavigate: React.PropTypes.func.isRequired,
     goBack: React.PropTypes.func.isRequired,
     user: React.PropTypes.object.isRequired,
+    logout: React.PropTypes.func.isRequired,
   };
 
   constructor(props) {
@@ -87,6 +92,7 @@ export default class Menu extends React.Component {
     this.openSettings = this.openSettings.bind(this);
     this.sendDeviceTokenToServer = this.sendDeviceTokenToServer.bind(this);
     this.registerToPushNotifications = this.registerToPushNotifications.bind(this);
+    this.openMirrorConfig = this.openMirrorConfig.bind(this);
   }
 
   componentDidMount() {
@@ -258,6 +264,7 @@ export default class Menu extends React.Component {
   * Logs out of the app.
   */
   logOut() {
+    this.props.logout();
     const route = {
       type: 'reset',
       route: {
@@ -268,11 +275,29 @@ export default class Menu extends React.Component {
     this.props.handleNavigate(route);
   }
 
+  openMirrorConfig() {
+    const route = {
+      type: 'push',
+      route: {
+        key: 'mirror',
+        title: 'Mirror',
+      },
+    };
+    this.props.handleNavigate(route);
+  }
+
   render() {
     return (
       <View style={styles.container}>
         <View style={styles.header}>
-          <Text style={styles.headerText}>{'Hi ' + this.props.user.user.name + '!'}</Text>
+          <View style={styles.headerColumn}>
+            <Text style={styles.headerText}>{'Hi ' + this.props.user.user.name + '!'}</Text>
+          </View>
+          <View style={[styles.headerColumn, { alignItems: 'flex-end' }]}>
+            <TouchableOpacity onPress={this.logOut} style={styles.rowElement}>
+              <IconFA ref="signOutButton" name="sign-out" color="#0099CC" size={35} />
+            </TouchableOpacity>
+          </View>
         </View>
         <View style={styles.grid}>
           <View style={[styles.row, { borderBottomWidth: 0.2 }]}>
@@ -304,8 +329,8 @@ export default class Menu extends React.Component {
             >
               <IconFA ref="reminderButton" name="cogs" color="#0099CC" size={60} />
             </TouchableOpacity>
-            <TouchableOpacity onPress={this.logOut} style={styles.rowElement}>
-              <IconFA ref="signOutButton" name="sign-out" color="#0099CC" size={60} />
+            <TouchableOpacity onPress={this.openMirrorConfig} style={styles.rowElement}>
+              <IconFA ref="signOutButton" name="magic" color="#0099CC" size={60} />
             </TouchableOpacity>
           </View>
         </View>
@@ -322,6 +347,7 @@ function mapStateToProps(state) {
 
 function mapDispatchToProps(dispatch) {
   return {
+    logout: (...args) => { dispatch(logout(...args)); },
   };
 }
 

@@ -1,6 +1,8 @@
 package com.reminders;
 
 import com.facebook.react.ReactActivity;
+import com.zyu.ReactNativeWheelPickerPackage;
+import com.github.xinthink.rnmk.ReactMaterialKitPackage;
 
 import com.facebook.react.ReactPackage;
 import com.facebook.react.shell.MainReactPackage;

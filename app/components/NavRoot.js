@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+
 import Reminders from './Reminders';
 import Login from './Login';
 import Graph from './Graph';
@@ -6,8 +7,7 @@ import Menu from './Menu';
 import Lights from './Lights';
 import Surveillance from './Surveillance';
 import Settings from './Settings';
-
-
+import MirrorConfig from './MirrorConfig';
 import ReminderNotificationModal from './ReminderNotificationModal';
 
 import {
@@ -121,6 +121,8 @@ class NavRoot extends Component {
       return <Surveillance goBack={this.handleBackAction} handleNavigate={this.handleNavigate} />;
     } else if (scene.key === prefix + 'settings') {
       return <Settings goBack={this.handleBackAction} handleNavigate={this.handleNavigate} />;
+    } else if (scene.key === prefix + 'mirror') {
+      return <MirrorConfig goBack={this.handleBackAction} handleNavigate={this.handleNavigate} />;
     }
 
     return null;

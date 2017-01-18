@@ -135,13 +135,13 @@ android {
 }
 
 dependencies {
-    compile project(':react-native-material-kit')
+    compile project(':react-native-wheel-picker')
     compile project(':react-native-vector-icons')
+    compile project(':react-native-material-kit')
     compile fileTree(dir: "libs", include: ["*.jar"])
     compile "com.android.support:appcompat-v7:23.0.1"
     compile "com.facebook.react:react-native:+"  // From node_modules
     compile project(':react-native-push-notification')
-    compile project(':react-native-geo-fencing')
 
 }
 

@@ -3,5 +3,6 @@
  */
 module.exports = {
   serverURL: 'https://radiant-wave-58367.herokuapp.com',
-  //serverURL: 'http://192.168.1.156:5000',
+  mirrorURL: 'http://192.168.1.252:3001',
+  // mirrorURL: 'http://192.168.1.98:3001',
 };

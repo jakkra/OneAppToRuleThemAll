@@ -4,17 +4,19 @@ import android.app.Application;
 import android.util.Log;
 
 import com.facebook.react.ReactApplication;
+import com.oblador.vectoricons.VectorIconsPackage;
+import com.github.xinthink.rnmk.ReactMaterialKitPackage;
 import com.facebook.react.ReactInstanceManager;
 import com.facebook.react.ReactNativeHost;
 import com.facebook.react.ReactPackage;
 import com.facebook.react.shell.MainReactPackage;
+import com.zyu.ReactNativeWheelPickerPackage;
 
 import com.github.xinthink.rnmk.ReactMaterialKitPackage;
 import com.oblador.vectoricons.VectorIconsPackage;
 
 import com.dieam.reactnativepushnotification.ReactNativePushNotificationPackage;  // <--- Import Package
 import android.content.Intent; // <--- Import Intent
-import com.surialabs.rn.geofencing.GeoFencingPackage;// <--
 
 
 
@@ -39,8 +41,8 @@ public class MainApplication extends Application implements ReactApplication {
           new MainReactPackage(),
           new ReactMaterialKitPackage(),
           new VectorIconsPackage(),
-          mReactNativePushNotificationPackage,
-          new GeoFencingPackage()
+          new ReactNativeWheelPickerPackage(),
+          mReactNativePushNotificationPackage
       );
     }
   };

@@ -16,7 +16,7 @@ export function getDayName(dayOfWeek) {
 }
 
 export function toDateMonth(date) {
-  return date.getDate() + '/' + date.getMonth();
+  return date.getDate() + '/' + (date.getMonth() + 1);
 }
 
 export function toHourMinutes(date) {
