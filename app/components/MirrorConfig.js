@@ -7,6 +7,8 @@ import {
   Text,
   InteractionManager,
   TouchableOpacity,
+  Alert,
+  TextInput,
 } from 'react-native';
 
 import { connect } from 'react-redux';
@@ -45,6 +47,25 @@ const styles = StyleSheet.create({
     borderColor: 'lightgray',
 
   },
+  header: {
+    flexDirection: 'row',
+    height: 50,
+    borderBottomWidth: 0.3,
+    borderBottomColor: 'lightgray',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  headerText: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    alignSelf: 'stretch',
+    color: '#0099CC',
+  },
+  headerColumn: {
+    flexDirection: 'column',
+    flex: 0.5,
+    marginHorizontal: 20,
+  },
   label: {
     fontSize: 16,
     color: 'gray',
@@ -57,6 +78,8 @@ const styles = StyleSheet.create({
     width: 200,
     height: 180,
     alignSelf: 'center',
+  },
+  ttsInput: {
   },
 });
 
@@ -77,11 +100,13 @@ export default class MirrorConfig extends React.Component {
       component: 'all',
       selectedComponent: 2,
       itemList: ['All', 'News', 'Forecasts', 'Weather', 'Article', 'Tasks'],
+      textToSpeak: '',
     };
     this.hideMirrorComponent = this.hideMirrorComponent.bind(this);
     this.showMirrorComponent = this.showMirrorComponent.bind(this);
     this.rightPage = this.rightPage.bind(this);
     this.leftPage = this.leftPage.bind(this);
+    this.sendSpeak = this.sendSpeak.bind(this);
   }
 
   componentDidMount() {
@@ -102,7 +127,6 @@ export default class MirrorConfig extends React.Component {
   }
 
   showMirrorComponent() {
-    console.log('Hide component on mirror', this.state.component);
     if (this.state.component === 'all') {
       fetch(config.mirrorURL + '/api/show/');
     } else {
@@ -111,19 +135,42 @@ export default class MirrorConfig extends React.Component {
   }
 
   leftPage() {
-    console.log('Left page');
     fetch(config.mirrorURL + '/api/previous/');
   }
 
   rightPage() {
-    console.log('Left page');
     fetch(config.mirrorURL + '/api/next/');
+  }
+
+  powerOffMirror() {
+    Alert.alert(
+      'Shutdown Mirror',
+      'Are you sure?',
+      [
+        { text: 'Cancel', onPress: () => console.log('Cancel Pressed'), style: 'cancel' },
+        { text: 'Yes', onPress: () => fetch(config.mirrorURL + '/api/shutdown/') },
+      ]
+    );
+  }
+
+  sendSpeak() {
+    fetch(config.mirrorURL + '/api/speak/' + this.state.textToSpeak);
   }
 
 
   render() {
     return (
       <View style={styles.container}>
+        <View style={styles.header}>
+          <View style={styles.headerColumn}>
+            <Text style={styles.headerText}>{'Smart Mirror'}</Text>
+          </View>
+          <View style={[styles.headerColumn, { alignItems: 'flex-end' }]}>
+            <TouchableOpacity onPress={this.powerOffMirror} style={styles.rowElement}>
+              <IconFA ref="signOutButton" name="power-off" color="#0099CC" size={35} />
+            </TouchableOpacity>
+          </View>
+        </View>
         <View style={styles.grid}>
           <View style={[styles.row, { borderBottomWidth: 0.2 }]}>
             <TouchableOpacity
@@ -148,7 +195,10 @@ export default class MirrorConfig extends React.Component {
               style={styles.picker}
               selectedValue={this.state.selectedComponent}
               itemStyle={{ color: 'black', fontSize: 26 }}
-              onValueChange={(index) => this.setState({ selectedComponent: index, component: this.state.itemList[index].toLowerCase() })}
+              onValueChange={(index) => this.setState({
+                selectedComponent: index,
+                component: this.state.itemList[index].toLowerCase(),
+              })}
             >
               {this.state.itemList.map((value, i) => (
                 <PickerItem label={value} value={i} key={value} />
@@ -165,6 +215,27 @@ export default class MirrorConfig extends React.Component {
             <TouchableOpacity onPress={this.rightPage} style={styles.rowElement}>
               <IconFA ref="reminderButton" name="arrow-right" color="#0099CC" size={60} />
             </TouchableOpacity>
+          </View>
+          <View style={[styles.row, { borderTopWidth: 0.2 }]}>
+            <View style={[styles.grid, { marginLeft: 0 }]}>
+              <View style={styles.row}>
+                <TextInput
+                  style={[styles.rowElement, { fontSize: 12, color: '#0099CC' }]}
+                  placeholder={'This will be spoken'}
+                  placeholderTextColor="lightgray"
+                  value={this.state.textToSpeak}
+                  onChangeText={text => this.setState({ ...{ textToSpeak: text } })}
+                  onSubmitEditing={this.sendSpeak}
+                />
+                <TouchableOpacity onPress={this.sendSpeak} style={styles.rowElement}>
+                  <IconFA ref="reminderButton" name="volume-up" color="#0099CC" size={25} />
+                  <Text style={[styles.label, { fontSize: 12 }]}>
+                    Speak
+                  </Text>
+                </TouchableOpacity>
+              </View>
+              <View style={styles.row} />
+            </View>
           </View>
 
         </View>
