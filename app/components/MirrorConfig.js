@@ -18,6 +18,8 @@ import { createAnimatableComponent } from 'react-native-animatable';
 
 import Picker from 'react-native-wheel-picker';
 const PickerItem = Picker.Item;
+import Modal from 'react-native-modalbox';
+import { TriangleColorPicker } from 'react-native-color-picker';
 
 import IcFA from 'react-native-vector-icons/FontAwesome';
 
@@ -45,7 +47,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     borderColor: 'lightgray',
-
   },
   header: {
     flexDirection: 'row',
@@ -79,8 +80,24 @@ const styles = StyleSheet.create({
     height: 180,
     alignSelf: 'center',
   },
-  ttsInput: {
+  sidePicker: {
+    width: 200,
+    height: 100,
+    alignSelf: 'center',
   },
+  modal: {
+    justifyContent: 'center',
+    alignItems: 'center',
+    height: 500,
+    width: 330,
+  },
+  modalRow: {
+    height: 50,
+    alignItems: 'center',
+    justifyContent: 'center',
+    flexDirection: 'row',
+  },
+
 });
 
 /**
@@ -97,16 +114,20 @@ export default class MirrorConfig extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      component: 'all',
+      component: 'All',
       selectedComponent: 2,
       itemList: ['All', 'News', 'Forecasts', 'Weather', 'Article', 'Tasks'],
       textToSpeak: '',
+      ledSideList: ['All', 'Top', 'Right', 'Bottom', 'Left'],
+      selectedLedSide: 'All',
     };
     this.hideMirrorComponent = this.hideMirrorComponent.bind(this);
     this.showMirrorComponent = this.showMirrorComponent.bind(this);
     this.rightPage = this.rightPage.bind(this);
     this.leftPage = this.leftPage.bind(this);
     this.sendSpeak = this.sendSpeak.bind(this);
+    this.showColorPicker = this.showColorPicker.bind(this);
+    this.colorSelected = this.colorSelected.bind(this);
   }
 
   componentDidMount() {
@@ -157,6 +178,56 @@ export default class MirrorConfig extends React.Component {
     fetch(config.mirrorURL + '/api/speak/' + this.state.textToSpeak);
   }
 
+  showColorPicker() {
+    this.refs.modal.open();
+  }
+
+  colorSelected(color) {
+    console.log(color, this.state.selectedLedSide, this.hexToRgb(color));
+    const options = {
+      method: 'POST',
+      body: JSON.stringify({
+        side: this.state.selectedLedSide,
+        rgb: this.hexToRgb(color),
+      }),
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'application/json',
+      },
+    };
+    fetch(config.mirrorURL + '/api/serial/', options)
+    .then(response => console.log(response))
+    .then(json => console.log(json))
+    .catch(err => console.log(err));
+  }
+
+  hexToRgb(hex) {
+    const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+    return result ? {
+      r: parseInt(result[1], 16),
+      g: parseInt(result[2], 16),
+      b: parseInt(result[3], 16),
+    } : null;
+  }
+
+  handleMode(mode){
+    const options = {
+      method: 'POST',
+      body: JSON.stringify({
+        mode: mode,
+        speed: 50,
+      }),
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'application/json',
+      },
+    };
+    fetch(config.mirrorURL + '/api/serial/', options)
+    .then(response => console.log(response))
+    .then(json => console.log(json))
+    .catch(err => console.log(err));
+  }
+
 
   render() {
     return (
@@ -166,9 +237,18 @@ export default class MirrorConfig extends React.Component {
             <Text style={styles.headerText}>{'Smart Mirror'}</Text>
           </View>
           <View style={[styles.headerColumn, { alignItems: 'flex-end' }]}>
-            <TouchableOpacity onPress={this.powerOffMirror} style={styles.rowElement}>
-              <IconFA ref="signOutButton" name="power-off" color="#0099CC" size={35} />
-            </TouchableOpacity>
+            <View style={styles.row}>
+              <Text style={[styles.label, { fontSize: 12 }]}>
+                OPTIONS
+              </Text>
+              <TouchableOpacity onPress={this.showColorPicker} style={styles.rowElement}>
+                <IconFA ref="reminderButton" name="lightbulb-o" color="#0099CC" size={45} />
+              </TouchableOpacity>
+
+              <TouchableOpacity onPress={this.powerOffMirror} style={styles.rowElement}>
+                <IconFA ref="signOutButton" name="power-off" color="#0099CC" size={35} />
+              </TouchableOpacity>
+            </View>
           </View>
         </View>
         <View style={styles.grid}>
@@ -239,6 +319,54 @@ export default class MirrorConfig extends React.Component {
           </View>
 
         </View>
+        <Modal
+          style={styles.modal}
+          position={"center"}
+          ref={"modal"}
+          isDisabled={false}
+          swipeToClose={false}
+        >
+          <View style={{ flex: 1, backgroundColor: '#212021' }}>
+            <TriangleColorPicker
+              oldColor="purple"
+              onColorSelected={this.colorSelected}
+              style={{ flex: 1, width: 330, alignSelf: 'center', padding: 10 }}
+            />
+            <Picker
+              style={styles.sidePicker}
+              selectedValue={this.state.selectedLedSide}
+              itemStyle={{ color: 'black', fontSize: 26 }}
+              onValueChange={(index) => this.setState({
+                selectedLedSide: this.state.ledSideList[index].toLowerCase(),
+              })}
+            >
+              {this.state.ledSideList.map((value, i) => (
+                <PickerItem label={value} value={i} key={value} />
+              ))}
+            </Picker>
+            <View style={styles.modalRow}>
+              <TouchableOpacity onPress={() => this.handleMode('rainbow')} style={styles.rowElement}>
+                <IconFA ref="reminderButton" name="lightbulb-o" color="#0099CC" size={25} />
+                <Text style={[styles.label, { fontSize: 12 }]}>
+                  Rainbow
+                </Text>
+              </TouchableOpacity>
+              <TouchableOpacity onPress={() => this.handleMode('rainbowCycle')} style={styles.rowElement}>
+                <IconFA ref="reminderButton" name="lightbulb-o" color="#0099CC" size={25} />
+                <Text style={[styles.label, { fontSize: 12 }]}>
+                  Rainbow Cycle
+                </Text>
+              </TouchableOpacity>
+              <TouchableOpacity onPress={() => this.handleMode('theaterChaseRainbow')} style={styles.rowElement}>
+                <IconFA ref="reminderButton" name="lightbulb-o" color="#0099CC" size={25} />
+                <Text style={[styles.label, { fontSize: 12 }]}>
+                  Chase Rainbow
+                </Text>
+              </TouchableOpacity>
+            </View>
+
+          </View>
+        </Modal>
       </View>
     );
   }
