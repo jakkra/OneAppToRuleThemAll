@@ -298,7 +298,7 @@ class Graph extends React.Component {
     if (firstDate.toDateString() === lastDate.toDateString()) {
       return toHourMinutes(date);
     }
-    return date.getDate() + '/' + date.getUTCMonth();
+    return date.getDate() + '/' + (date.getUTCMonth() + 1);
   }
 
   render() {

@@ -19,7 +19,7 @@ import { createAnimatableComponent } from 'react-native-animatable';
 import Picker from 'react-native-wheel-picker';
 const PickerItem = Picker.Item;
 import Modal from 'react-native-modalbox';
-import { TriangleColorPicker } from 'react-native-color-picker';
+import { ColorPicker } from 'react-native-color-picker';
 
 import IcFA from 'react-native-vector-icons/FontAwesome';
 
@@ -120,6 +120,7 @@ export default class MirrorConfig extends React.Component {
       textToSpeak: '',
       ledSideList: ['All', 'Top', 'Right', 'Bottom', 'Left'],
       selectedLedSide: 'All',
+      selectedColor: 'purple',
     };
     this.hideMirrorComponent = this.hideMirrorComponent.bind(this);
     this.showMirrorComponent = this.showMirrorComponent.bind(this);
@@ -184,6 +185,9 @@ export default class MirrorConfig extends React.Component {
 
   colorSelected(color) {
     console.log(color, this.state.selectedLedSide, this.hexToRgb(color));
+    this.setState({
+      selectedColor: color,
+    });
     const options = {
       method: 'POST',
       body: JSON.stringify({
@@ -210,11 +214,11 @@ export default class MirrorConfig extends React.Component {
     } : null;
   }
 
-  handleMode(mode){
+  handleMode(mode) {
     const options = {
       method: 'POST',
       body: JSON.stringify({
-        mode: mode,
+        mode,
         speed: 50,
       }),
       headers: {
@@ -327,15 +331,15 @@ export default class MirrorConfig extends React.Component {
           swipeToClose={false}
         >
           <View style={{ flex: 1, backgroundColor: '#212021' }}>
-            <TriangleColorPicker
-              oldColor="purple"
+            <ColorPicker
+              oldColor={this.state.selectedColor}
               onColorSelected={this.colorSelected}
               style={{ flex: 1, width: 330, alignSelf: 'center', padding: 10 }}
             />
             <Picker
               style={styles.sidePicker}
               selectedValue={this.state.selectedLedSide}
-              itemStyle={{ color: 'black', fontSize: 26 }}
+              itemStyle={{ color: 'white', fontSize: 26 }}
               onValueChange={(index) => this.setState({
                 selectedLedSide: this.state.ledSideList[index].toLowerCase(),
               })}
