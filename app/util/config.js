@@ -2,7 +2,7 @@
  * Constants for the app
  */
 module.exports = {
-  serverURL: 'https://radiant-wave-58367.herokuapp.com',
+  serverURL: 'http://207.154.239.115',
   mirrorURL: 'http://192.168.1.98:3001',
   // mirrorURL: 'http://192.168.1.252:3001',
 };
