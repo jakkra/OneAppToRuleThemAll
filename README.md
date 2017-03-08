@@ -8,7 +8,8 @@ Click to play! (Will open YouTube)
 [![IMAGE ALT TEXT](http://img.youtube.com/vi/O_si4gOGGao/0.jpg)](http://www.youtube.com/watch?v=O_si4gOGGao "Video Title")
 
 Now supports controlling my [Magic Mirror](https://github.com/jakkra/SmartMirror) also:
-<img src="pics/mirror.jpg" width="500"/> <img src="pics/mirror_color.jpg" width="500"/>
+
+<img src="pics/mirror.png" width="400"/> <img src="pics/mirror_color.png" width="400"/>
 
 
 ## Getting Started
